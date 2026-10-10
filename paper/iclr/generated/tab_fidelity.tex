@@ -1,0 +1,17 @@
+\begin{tabular}{llrrrrr}
+\toprule
+\textbf{Model} & \textbf{Layout} & \textbf{Action exec.} & \textbf{Reveal exec.} & \textbf{Trap acc. (all)} & \textbf{Trap acc. (thread fully executed)} & $n$ \textbf{skipped} \\
+\midrule
+Gemini 2.5 Flash & L1 append-only & 0.997 & 1.000 & 0.661 & 0.661 & 0 \\
+ & L3 pruned & 0.997 & 1.000 & 0.911 & 0.911 & 0 \\
+ & L4 hybrid & 1.000 & 1.000 & 0.861 & 0.861 & 0 \\
+\midrule
+Gemini 3.1 Flash-Lite & L1 append-only & 0.998 & 0.995 & 0.808 & 0.811 & 1 \\
+ & L2 reordered & 0.998 & 1.000 & 0.836 & 0.836 & 0 \\
+ & L3 pruned & 0.996 & 0.990 & 0.978 & 0.983 & 2 \\
+ & L4 hybrid & 0.995 & 0.990 & 0.853 & 0.858 & 2 \\
+\midrule
+Gemini 3.6 Flash & L1 append-only & 0.984 & 0.975 & 0.889 & 0.884 & 3 \\
+ & L3 pruned & 0.988 & 1.000 & 1.000 & 1.000 & 2 \\
+\bottomrule
+\end{tabular}

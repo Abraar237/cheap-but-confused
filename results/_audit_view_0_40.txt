@@ -1,0 +1,296 @@
+
+#0 google/gemini-3.1-flash-lite cal-T1-L12-high-s0 L1 step 10 q=start rec=EVT-4110 trap=True chain=1 stale_present=True
+   answered '11:00'  actual '13:30'  raw: '{"answer": "11:00"}'
+   step  2 get_event              start='11:00'
+   step  5 get_room_schedule      start='13:30'
+   -> STALE(earlier value), DISTRACTOR(['EVT-2569', 'EVT-8422'])
+
+#1 google/gemini-3.1-flash-lite tic-T2-L12-low-s0 L2 step 14 q=priority rec=TCK-1469 trap=True chain=2 stale_present=True
+   answered 'P2'  actual 'P1'  raw: '{"answer": "P2"}'
+   step  2 get_ticket             priority='P4'
+   step  9 set_priority           priority='P2'
+   step 11 list_tickets           priority='P1'
+   -> STALE(earlier value), DISTRACTOR(['TCK-1501', 'TCK-3011', 'TCK-3579'])
+
+#2 google/gemini-3.1-flash-lite cal-T1-L30-high-s0 L3 step 15 q=start rec=EVT-8185 trap=True chain=2 stale_present=True
+   answered '16:00'  actual '09:00'  raw: '{"answer": "16:00"}'
+   step  4 get_event              start='15:00'
+   step  6 reschedule_event       start='16:00'
+   step 11 get_room_schedule      start='09:00'
+   -> STALE(earlier value)
+
+#3 google/gemini-3.1-flash-lite tic-T1-L30-low-s1 L4 step 17 q=assignee rec=TCK-9824 trap=True chain=2 stale_present=True
+   answered 'Lena Fischer'  actual 'Priya Nair'  raw: '{"answer": "Lena Fischer"}'
+   step  4 get_ticket             assignee='Tom Okafor'
+   step  7 assign_ticket          assignee='Lena Fischer'
+   step 10 list_tickets           assignee='Priya Nair'
+   -> STALE(earlier value), DISTRACTOR(['TCK-5187', 'TCK-5503'])
+
+#4 google/gemini-3.1-flash-lite tic-T2-L30-high-s1 L1 step 31 q=priority rec=TCK-7042 trap=True chain=3 stale_present=True
+   answered 'P3'  actual 'P1'  raw: '{"answer": "P3"}'
+   step  3 list_tickets           priority='P4'
+   step  4 list_tickets           priority='P4'
+   step  5 list_tickets           priority='P4'
+   step 12 get_ticket             priority='P4'
+   step 17 set_priority           priority='P1'
+   step 19 list_tickets           priority='P1'
+   step 22 set_priority           priority='P3'
+   step 24 list_tickets           priority='P3'
+   step 25 list_tickets           priority='P1'
+   -> STALE(earlier value), DISTRACTOR(['TCK-1391', 'TCK-1553', 'TCK-2082'])
+
+#5 google/gemini-3.1-flash-lite tic-T2-L30-low-s1 L2 step 18 q=priority rec=TCK-6011 trap=True chain=2 stale_present=True
+   answered 'P2'  actual 'P4'  raw: '{"answer": "P2"}'
+   step  7 get_ticket             priority='P3'
+   step 10 set_priority           priority='P2'
+   step 13 list_tickets           priority='P4'
+   -> STALE(earlier value), DISTRACTOR(['TCK-2615', 'TCK-2696', 'TCK-3583'])
+
+#6 google/gemini-3.1-flash-lite cal-T1-L30-low-s1 L3 step 21 q=start rec=EVT-2508 trap=True chain=2 stale_present=True
+   answered '16:00'  actual '11:00'  raw: '{"answer": "16:00"}'
+   step  6 get_event              start='15:30'
+   step 10 reschedule_event       start='16:00'
+   step 16 get_room_schedule      start='11:00'
+   -> STALE(earlier value)
+
+#7 google/gemini-3.1-flash-lite cal-T1-L18-low-s0 L4 step 19 q=start rec=EVT-2655 trap=True chain=2 stale_present=True
+   answered '16:00'  actual '11:00'  raw: '{"answer": "16:00"}'
+   step  5 get_event              start='15:30'
+   step  7 reschedule_event       start='16:00'
+   step 12 get_room_schedule      start='11:00'
+   -> STALE(earlier value), DISTRACTOR(['EVT-6206'])
+
+#8 google/gemini-3.1-flash-lite inv-T3-L6-high-s1 L1 step 6 q=below_threshold rec=SKU-8148 trap=True chain=1 stale_present=True
+   answered 'no'  actual 'yes'  raw: '{"answer": "no"}'
+   step  1 get_stock              qty=55
+   step  2 get_reorder_threshold  reorder_threshold=7
+   step  3 list_bin_contents      qty=4
+   -> OTHER
+
+#9 google/gemini-3.1-flash-lite cal-T1-L18-high-s0 L2 step 17 q=start rec=EVT-3566 trap=True chain=2 stale_present=True
+   answered '13:00'  actual '15:30'  raw: '{"answer": "13:00"}'
+   step  5 get_event              start='11:00'
+   step 10 reschedule_event       start='13:00'
+   step 12 get_room_schedule      start='15:30'
+   step 13 get_room_schedule      start='15:30'
+   -> STALE(earlier value), DISTRACTOR(['EVT-1912', 'EVT-8467'])
+
+#10 google/gemini-3.1-flash-lite cal-T1-L18-low-s1 L3 step 12 q=start rec=EVT-3489 trap=True chain=2 stale_present=True
+   answered '13:30'  actual '13:00'  raw: '{"answer": "13:30"}'
+   step  2 get_event              start='09:30'
+   step  4 reschedule_event       start='13:30'
+   step  7 get_room_schedule      start='13:00'
+   -> STALE(earlier value), DISTRACTOR(['EVT-1249', 'EVT-8168'])
+
+#11 google/gemini-3.1-flash-lite cal-T1-L12-high-s1 L4 step 14 q=start rec=EVT-7600 trap=True chain=2 stale_present=True
+   answered '13:00'  actual '14:30'  raw: '{"answer": "13:00"}'
+   step  6 get_event              start='16:00'
+   step  9 reschedule_event       start='13:00'
+   step 11 get_room_schedule      start='14:30'
+   -> STALE(earlier value), DISTRACTOR(['EVT-1381'])
+
+#12 google/gemini-3.1-flash-lite inv-T3-L18-high-s0 L1 step 7 q=below_threshold rec=SKU-5144 trap=True chain=1 stale_present=True
+   answered 'no'  actual 'yes'  raw: '{"answer": "no"}'
+   step  2 get_stock              qty=44
+   step  3 get_reorder_threshold  reorder_threshold=20
+   step  4 list_bin_contents      qty=17
+   -> OTHER
+
+#13 google/gemini-3.1-flash-lite tic-T1-L30-high-s0 L2 step 18 q=assignee rec=TCK-3801 trap=True chain=2 stale_present=True
+   answered 'Ben Carter'  actual 'Diego Ruiz'  raw: '{"answer": "Ben Carter"}'
+   step  5 get_ticket             assignee='Chloe Martin'
+   step  9 assign_ticket          assignee='Ben Carter'
+   step 13 list_tickets           assignee='Diego Ruiz'
+   -> STALE(earlier value), DISTRACTOR(['TCK-3390', 'TCK-5494', 'TCK-8575'])
+
+#14 google/gemini-3.1-flash-lite cal-T1-L18-low-s0 L3 step 19 q=start rec=EVT-2655 trap=True chain=2 stale_present=True
+   answered '16:00'  actual '11:00'  raw: '{"answer": "16:00"}'
+   step  5 get_event              start='15:30'
+   step  7 reschedule_event       start='16:00'
+   step 12 get_room_schedule      start='11:00'
+   -> STALE(earlier value), DISTRACTOR(['EVT-6206'])
+
+#15 google/gemini-3.1-flash-lite tic-T2-L30-low-s1 L4 step 18 q=priority rec=TCK-6011 trap=True chain=2 stale_present=True
+   answered 'P2'  actual 'P4'  raw: '{"answer": "P2"}'
+   step  7 get_ticket             priority='P3'
+   step 10 set_priority           priority='P2'
+   step 13 list_tickets           priority='P4'
+   -> STALE(earlier value), DISTRACTOR(['TCK-2615', 'TCK-2696', 'TCK-3583'])
+
+#16 google/gemini-3.1-flash-lite cal-T1-L30-high-s0 L1 step 15 q=start rec=EVT-8185 trap=True chain=2 stale_present=True
+   answered '16:00'  actual '09:00'  raw: '{"answer": "16:00"}'
+   step  4 get_event              start='15:00'
+   step  6 reschedule_event       start='16:00'
+   step 11 get_room_schedule      start='09:00'
+   -> STALE(earlier value)
+
+#17 google/gemini-3.1-flash-lite inv-T3-L18-low-s0 L2 step 8 q=below_threshold rec=SKU-1923 trap=True chain=1 stale_present=True
+   answered 'no'  actual 'yes'  raw: '{"answer": "no"}'
+   step  2 get_stock              qty=48
+   step  3 get_reorder_threshold  reorder_threshold=23
+   step  4 list_bin_contents      qty=23
+   -> OTHER
+
+#18 google/gemini-3.1-flash-lite tic-T2-L30-high-s1 L3 step 31 q=priority rec=TCK-7042 trap=True chain=3 stale_present=True
+   answered 'P3'  actual 'P1'  raw: '{"answer": "P3"}'
+   step  3 list_tickets           priority='P4'
+   step  5 list_tickets           priority='P4'
+   step 12 get_ticket             priority='P4'
+   step 17 set_priority           priority='P1'
+   step 19 list_tickets           priority='P1'
+   step 22 set_priority           priority='P3'
+   step 24 list_tickets           priority='P3'
+   -> STALE(earlier value), LATEST-OBSERVED(scoring mismatch?), DISTRACTOR(['TCK-1391', 'TCK-1553', 'TCK-2082'])
+
+#19 google/gemini-3.1-flash-lite tic-T1-L30-high-s0 L4 step 26 q=assignee rec=TCK-4717 trap=True chain=3 stale_present=True
+   answered 'Aisha Khan'  actual 'Ben Carter'  raw: '{"answer": "Aisha Khan"}'
+   step  4 list_tickets           assignee='Hannah Lee'
+   step  6 get_ticket             assignee='Hannah Lee'
+   step 10 assign_ticket          assignee='Lena Fischer'
+   step 15 assign_ticket          assignee='Aisha Khan'
+   step 19 list_tickets           assignee='Ben Carter'
+   step 24 list_tickets           assignee='Ben Carter'
+   -> STALE(earlier value), DISTRACTOR(['TCK-1387', 'TCK-2928', 'TCK-5063'])
+
+#20 google/gemini-3.1-flash-lite cal-T1-L18-low-s0 L1 step 19 q=start rec=EVT-2655 trap=True chain=2 stale_present=True
+   answered '16:00'  actual '11:00'  raw: '{"answer": "16:00"}'
+   step  5 get_event              start='15:30'
+   step  7 reschedule_event       start='16:00'
+   step 12 get_room_schedule      start='11:00'
+   -> STALE(earlier value), DISTRACTOR(['EVT-6206'])
+
+#21 google/gemini-3.1-flash-lite cal-T1-L18-low-s1 L2 step 16 q=start rec=EVT-6604 trap=True chain=1 stale_present=True
+   answered '11:00'  actual '15:30'  raw: '{"answer": "11:00"}'
+   step  5 get_event              start='11:00'
+   step 10 get_room_schedule      start='15:30'
+   -> STALE(earlier value), DISTRACTOR(['EVT-1397'])
+
+#22 google/gemini-3.1-flash-lite tic-T1-L18-high-s0 L3 step 19 q=assignee rec=TCK-1062 trap=True chain=2 stale_present=True
+   answered 'Chloe Martin'  actual 'Ben Carter'  raw: '{"answer": "Chloe Martin"}'
+   step  6 get_ticket             assignee='Priya Nair'
+   step  9 assign_ticket          assignee='Chloe Martin'
+   step 10 list_tickets           assignee='Chloe Martin'
+   -> STALE(earlier value), LATEST-OBSERVED(scoring mismatch?), DISTRACTOR(['TCK-1595', 'TCK-2945', 'TCK-4852'])
+
+#23 google/gemini-3.1-flash-lite inv-T3-L12-high-s0 L4 step 7 q=below_threshold rec=SKU-2014 trap=True chain=1 stale_present=True
+   answered 'no'  actual 'yes'  raw: '{"answer": "no"}'
+   step  2 get_stock              qty=48
+   step  3 get_reorder_threshold  reorder_threshold=10
+   step  4 list_bin_contents      qty=10
+   -> OTHER
+
+#24 google/gemini-3.1-flash-lite inv-T3-L6-high-s0 L1 step 6 q=below_threshold rec=SKU-8408 trap=True chain=1 stale_present=True
+   answered 'no'  actual 'yes'  raw: '{"answer": "no"}'
+   step  1 get_stock              qty=36
+   step  2 get_reorder_threshold  reorder_threshold=24
+   step  3 list_bin_contents      qty=21
+   -> OTHER
+
+#25 google/gemini-3.1-flash-lite inv-T3-L12-high-s1 L2 step 9 q=below_threshold rec=SKU-1682 trap=True chain=1 stale_present=True
+   answered 'no'  actual 'yes'  raw: '{"answer": "no"}'
+   step  1 get_stock              qty=34
+   step  2 get_reorder_threshold  reorder_threshold=13
+   step  3 list_bin_contents      qty=13
+   -> OTHER
+
+#26 google/gemini-3.1-flash-lite tic-T2-L12-low-s0 L3 step 14 q=priority rec=TCK-1469 trap=True chain=2 stale_present=True
+   answered 'P2'  actual 'P1'  raw: '{"answer": "P2"}'
+   step  2 get_ticket             priority='P4'
+   step  9 set_priority           priority='P2'
+   step 11 list_tickets           priority='P1'
+   -> STALE(earlier value), DISTRACTOR(['TCK-1501', 'TCK-3011', 'TCK-3579'])
+
+#27 google/gemini-3.1-flash-lite tic-T1-L12-high-s1 L4 step 12 q=assignee rec=TCK-7944 trap=True chain=2 stale_present=True
+   answered 'Marco Silva'  actual 'Yusuf Demir'  raw: '{"answer": "Marco Silva"}'
+   step  3 get_ticket             assignee='Hannah Lee'
+   step  5 assign_ticket          assignee='Marco Silva'
+   step  6 list_tickets           assignee='Marco Silva'
+   step  7 list_tickets           assignee='Yusuf Demir'
+   -> STALE(earlier value), DISTRACTOR(['TCK-1427', 'TCK-7837'])
+
+#28 google/gemini-3.1-flash-lite tic-T1-L30-high-s0 L1 step 26 q=assignee rec=TCK-4717 trap=True chain=3 stale_present=True
+   answered 'Aisha Khan'  actual 'Ben Carter'  raw: '{"answer": "Aisha Khan"}'
+   step  4 list_tickets           assignee='Hannah Lee'
+   step  6 get_ticket             assignee='Hannah Lee'
+   step 10 assign_ticket          assignee='Lena Fischer'
+   step 15 assign_ticket          assignee='Aisha Khan'
+   step 19 list_tickets           assignee='Ben Carter'
+   step 24 list_tickets           assignee='Ben Carter'
+   step 25 list_tickets           assignee='Ben Carter'
+   -> STALE(earlier value), DISTRACTOR(['TCK-1387', 'TCK-2928', 'TCK-5063'])
+
+#29 google/gemini-3.1-flash-lite tic-T1-L30-low-s1 L2 step 17 q=assignee rec=TCK-9824 trap=True chain=2 stale_present=True
+   answered 'Lena Fischer'  actual 'Priya Nair'  raw: '{"answer": "Lena Fischer"}'
+   step  4 get_ticket             assignee='Tom Okafor'
+   step  7 assign_ticket          assignee='Lena Fischer'
+   step 10 list_tickets           assignee='Priya Nair'
+   -> STALE(earlier value), DISTRACTOR(['TCK-5187', 'TCK-5503'])
+
+#30 google/gemini-3.1-flash-lite inv-T1-L30-low-s0 L3 step 16 q=qty rec=SKU-1884 trap=True chain=2 stale_present=True
+   answered '48'  actual 55  raw: '{"answer": 48}'
+   step  2 get_stock              qty=45
+   step  6 ship_order             qty=38
+   step  8 list_bin_contents      qty=55
+   -> OTHER
+
+#31 google/gemini-3.1-flash-lite inv-T3-L12-low-s1 L4 step 9 q=below_threshold rec=SKU-1250 trap=True chain=1 stale_present=True
+   answered 'no'  actual 'yes'  raw: '{"answer": "no"}'
+   step  1 get_stock              qty=57
+   step  2 get_reorder_threshold  reorder_threshold=11
+   step  3 list_bin_contents      qty=9
+   -> OTHER
+
+#32 google/gemini-3.1-flash-lite cal-T1-L30-low-s1 L1 step 21 q=start rec=EVT-2508 trap=True chain=2 stale_present=True
+   answered '16:00'  actual '11:00'  raw: '{"answer": "16:00"}'
+   step  6 get_event              start='15:30'
+   step 10 reschedule_event       start='16:00'
+   step 16 get_room_schedule      start='11:00'
+   -> STALE(earlier value)
+
+#33 google/gemini-3.1-flash-lite inv-T1-L18-high-s1 L2 step 9 q=qty rec=SKU-8007 trap=True chain=1 stale_present=True
+   answered '47'  actual 39  raw: '{"answer": 47}'
+   step  1 get_stock              qty=47
+   step  3 list_bin_contents      qty=39
+   -> STALE(earlier value)
+
+#34 google/gemini-3.1-flash-lite tic-T1-L12-low-s1 L4 step 14 q=assignee rec=TCK-4580 trap=True chain=2 stale_present=True
+   answered 'Ben Carter'  actual 'Sofia Rossi'  raw: '{"answer": "Ben Carter"}'
+   step  2 get_ticket             assignee='Ravi Menon'
+   step  7 assign_ticket          assignee='Ben Carter'
+   step 10 list_tickets           assignee='Sofia Rossi'
+   -> STALE(earlier value)
+
+#35 google/gemini-3.1-flash-lite inv-T3-L12-low-s0 L1 step 6 q=below_threshold rec=SKU-2364 trap=True chain=1 stale_present=True
+   answered 'no'  actual 'yes'  raw: '{"answer": "no"}'
+   step  1 get_stock              qty=54
+   step  2 get_reorder_threshold  reorder_threshold=10
+   step  3 list_bin_contents      qty=7
+   -> OTHER
+
+#36 google/gemini-3.1-flash-lite cal-T1-L30-low-s1 L2 step 21 q=start rec=EVT-2508 trap=True chain=2 stale_present=True
+   answered '16:00'  actual '11:00'  raw: '{"answer": "16:00"}'
+   step  6 get_event              start='15:30'
+   step 10 reschedule_event       start='16:00'
+   step 16 get_room_schedule      start='11:00'
+   -> STALE(earlier value)
+
+#37 google/gemini-3.1-flash-lite tic-T2-L30-high-s1 L4 step 21 q=priority rec=TCK-3483 trap=True chain=2 stale_present=True
+   answered 'P3'  actual 'P4'  raw: '{"answer": "P3"}'
+   step  8 get_ticket             priority='P2'
+   step 11 set_priority           priority='P3'
+   step 13 list_tickets           priority='P4'
+   -> STALE(earlier value), DISTRACTOR(['TCK-1391', 'TCK-1553', 'TCK-2082'])
+
+#38 google/gemini-3.1-flash-lite cal-T1-L12-high-s1 L1 step 14 q=start rec=EVT-7600 trap=True chain=2 stale_present=True
+   answered '13:00'  actual '14:30'  raw: '{"answer": "13:00"}'
+   step  6 get_event              start='16:00'
+   step  9 reschedule_event       start='13:00'
+   step 11 get_room_schedule      start='14:30'
+   -> STALE(earlier value), DISTRACTOR(['EVT-1381'])
+
+#39 google/gemini-3.1-flash-lite tic-T2-L30-high-s0 L2 step 21 q=priority rec=TCK-4486 trap=True chain=2 stale_present=True
+   answered 'P4'  actual 'P3'  raw: '{"answer": "P4"}'
+   step  7 get_ticket             priority='P2'
+   step  9 set_priority           priority='P4'
+   step 11 list_tickets           priority='P3'
+   -> STALE(earlier value), DISTRACTOR(['TCK-1274', 'TCK-1386', 'TCK-1475'])

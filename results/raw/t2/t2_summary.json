@@ -1,0 +1,108 @@
+{
+ "model": "google/gemini-3.1-flash-lite",
+ "layouts": {
+  "L1": {
+   "n_tasks": 50,
+   "total_cost_usd": 0.462782,
+   "n_calls": 971,
+   "aborted_attempts_cost_usd": 0.063117,
+   "multi_turn_base": {
+    "n": 25,
+    "accuracy": 0.44,
+    "mean_cost_per_task": 0.009412854,
+    "mean_cached_fraction": 0.7737818150403296,
+    "mean_calls_per_task": 20.52,
+    "min_turn1_prompt_tokens": 4730,
+    "error_types": {
+     "multi_turn:execution_response_mismatch": 2,
+     "multi_turn:force_terminated": 5,
+     "multi_turn:instance_state_mismatch": 7
+    }
+   },
+   "multi_turn_long_context": {
+    "n": 25,
+    "accuracy": 0.44,
+    "mean_cost_per_task": 0.009098426,
+    "mean_cached_fraction": 0.7961715370692408,
+    "mean_calls_per_task": 18.32,
+    "min_turn1_prompt_tokens": 4730,
+    "error_types": {
+     "multi_turn:execution_response_mismatch": 2,
+     "multi_turn:force_terminated": 4,
+     "multi_turn:instance_state_mismatch": 8
+    }
+   },
+   "mean_cost_per_task": 0.00925564,
+   "mean_cached_fraction": 0.7849766760547853
+  },
+  "L3": {
+   "n_tasks": 50,
+   "total_cost_usd": 0.418018,
+   "n_calls": 865,
+   "aborted_attempts_cost_usd": 0.003629,
+   "multi_turn_base": {
+    "n": 25,
+    "accuracy": 0.44,
+    "mean_cost_per_task": 0.008159319,
+    "mean_cached_fraction": 0.7713802410401488,
+    "mean_calls_per_task": 17.4,
+    "min_turn1_prompt_tokens": 4730,
+    "error_types": {
+     "multi_turn:execution_response_mismatch": 2,
+     "multi_turn:force_terminated": 6,
+     "multi_turn:instance_state_mismatch": 6
+    }
+   },
+   "multi_turn_long_context": {
+    "n": 25,
+    "accuracy": 0.48,
+    "mean_cost_per_task": 0.008561415,
+    "mean_cached_fraction": 0.7891324612098976,
+    "mean_calls_per_task": 17.2,
+    "min_turn1_prompt_tokens": 4730,
+    "error_types": {
+     "multi_turn:execution_response_mismatch": 3,
+     "multi_turn:force_terminated": 3,
+     "multi_turn:instance_state_mismatch": 7
+    }
+   },
+   "mean_cost_per_task": 0.008360367,
+   "mean_cached_fraction": 0.7802563511250231
+  },
+  "L4": {
+   "n_tasks": 50,
+   "total_cost_usd": 0.459791,
+   "n_calls": 920,
+   "aborted_attempts_cost_usd": 0.0,
+   "multi_turn_base": {
+    "n": 25,
+    "accuracy": 0.44,
+    "mean_cost_per_task": 0.009025815,
+    "mean_cached_fraction": 0.7883128075133385,
+    "mean_calls_per_task": 19.2,
+    "min_turn1_prompt_tokens": 4821,
+    "error_types": {
+     "multi_turn:execution_response_mismatch": 1,
+     "multi_turn:force_terminated": 6,
+     "multi_turn:instance_state_mismatch": 7
+    }
+   },
+   "multi_turn_long_context": {
+    "n": 25,
+    "accuracy": 0.4,
+    "mean_cost_per_task": 0.00936584,
+    "mean_cached_fraction": 0.8045007339735695,
+    "mean_calls_per_task": 17.6,
+    "min_turn1_prompt_tokens": 4821,
+    "error_types": {
+     "multi_turn:execution_response_mismatch": 3,
+     "multi_turn:force_terminated": 3,
+     "multi_turn:instance_state_mismatch": 9
+    }
+   },
+   "mean_cost_per_task": 0.0091958275,
+   "mean_cached_fraction": 0.796406770743454
+  }
+ },
+ "total_t2_spend_usd_incl_mwe": 1.437568
+}

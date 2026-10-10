@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheap but Confused? · Experiment Plan (frozen 2026-10-10)</title>
+<style>
+  :root { --slate:#155e8c; --hot:#b3006b; --shelf:#c0641a; --good:#1c7a55; --ink:#1a1a1a; --mut:#666; }
+  body { font-family: Helvetica, Arial, sans-serif; color: var(--ink); background:#fff; max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; line-height: 1.55; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 12px; color: var(--hot); font-weight: 700; }
+  h1 { font-size: 30px; margin: 6px 0 4px; line-height: 1.2; }
+  .sub { color: var(--mut); margin-bottom: 28px; }
+  h2 { font-size: 19px; color: var(--slate); margin-top: 36px; border-bottom: 2px solid #eee; padding-bottom: 6px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+  th { text-align: left; border-bottom: 2px solid var(--ink); padding: 6px 8px; }
+  td { border-bottom: 1px solid #e5e5e5; padding: 6px 8px; vertical-align: top; }
+  code { font-family: "SF Mono", Menlo, monospace; font-size: 13px; background:#f5f5f5; padding: 1px 4px; border-radius: 3px; }
+  .pill { display:inline-block; font-size:12px; font-weight:700; padding:2px 10px; border-radius:12px; color:#fff; }
+  .frozen { background: var(--good); } .warn { background: var(--shelf); }
+  .card { border:1px solid #e2e2e2; border-radius:8px; padding:16px 18px; margin:12px 0; }
+  .headline { color: var(--hot); font-weight: 700; }
+  ul { padding-left: 22px; }
+</style>
+</head>
+<body>
+<div class="eyebrow">Experiment plan · frozen at CP2</div>
+<h1>Cheap but Confused? The accuracy cost of cache-optimized context layouts in LLM agents</h1>
+<div class="sub">Holding information content fixed, does the cache-friendly append-only layout cost accuracy, and does the cache discount pay for it?
+· <span class="pill frozen">FROZEN 2026-10-10</span> · Mohammed Abraar, Vizuara Research</div>
+
+<div class="card">
+<b>Headline questions.</b>
+<span class="headline">Q1:</span> with content held fixed, does the cache-optimal append-only layout (L1) lose task accuracy relative to a relevance-reordered layout (L2) and to a stable-prefix hybrid that appends a recitation block (L4)?
+<span class="headline">Q2:</span> does keeping superseded tool results in context cause stale-value errors, and does oracle pruning (L3, which changes content and breaks the prefix) remove them?
+<span class="headline">Q3:</span> what is the cost per correct task of each layout under provider-reported cache hits and billed USD, and at what cache-read price does the cheapest layout per call stop being the cheapest per correct answer?
+<span class="headline">Q4:</span> does the answer depend on the model family and on trajectory length?
+</div>
+
+<h2>Pre-registered directions (recorded 2026-10-10, before any model call)</h2>
+<table><tr><th>Id</th><th>Direction</th></tr>
+<tr><td>D1</td><td>L1 accuracy is below L3 on stale-trap steps, the gap grows with trajectory length, and there is no comparable gap on neutral steps.</td></tr>
+<tr><td>D2</td><td>L2 does not significantly beat L1 (reordering no better than shuffling, as in RAG), while its cache-read fraction falls below 20% and its USD per task rises by at least 3x on 0.1x-read pricing; L2 is dominated on the frontier.</td></tr>
+<tr><td>D3</td><td>L4 recovers at least 50% of the L1-to-L3 accuracy gap while keeping at least 80% of L1's cache-read fraction, and sits on or inside the frontier for every model.</td></tr>
+<tr><td>D4</td><td>The L1-vs-L3 gap shrinks with model capability; the confusion cost is largest for the cheapest models, where caching saves the least absolute money.</td></tr>
+<tr><td>D5</td><td>Per correct task, L3 is cheapest when cache reads are expensive and L1/L4 become cheapest below a cache-read price threshold; the threshold is reported per model and compared with the published break-evens.</td></tr></table>
+
+<h2>The StaleTrap testbed (T1, primary)</h2>
+<table><tr><th>Element</th><th>Choice</th></tr>
+<tr><td>Environment</td><td>3 stateful domains (inventory, calendar, ticketing) + a never-required messaging/HR domain; 39 JSON tools; deterministic local executor; every result declares which (record, field) values it states.</td></tr>
+<tr><td>Prefix</td><td>System prompt + tool declarations = 5,102 tokens on Google's tokenizer, above every provider's implicit-cache minimum; byte-identical across layouts.</td></tr>
+<tr><td>Tasks</td><td>144 = 3 domains x 3 templates x 4 lengths (6/12/18/30 tool calls) x 2 distractor levels x 2 seeds; two phrasings each; 720 question steps (360 stale-trap, 360 neutral).</td></tr>
+<tr><td>Trap threads</td><td>read a field, update it 1 to 3 times, ask for the current value at a no-tool step. Two kinds: <b>own</b> (the agent's write returns the new value) and <b>external</b> (someone else changes the record; the new value appears only as a row inside an unrelated listing the agent was asked for). Every stale value differs from the answer by construction (360/360 checked).</td></tr>
+<tr><td>Neutral threads</td><td>read once, ask later; nothing in context competes.</td></tr>
+<tr><td>Distractors</td><td>low: compact unrelated reads/writes. high: verbose listings, near-miss identifiers, writes to other fields of thread records. Same call count, different volume and pressure.</td></tr>
+<tr><td>Scoring</td><td>exact match on canonicalised answer vs the executor's live state; <code>stale_present</code> marks whether the trap materialised; action-step fidelity logged; episode success = all questions correct.</td></tr></table>
+
+<h2>Layouts (content identical for L1, L2, L4)</h2>
+<table><tr><th>Id</th><th>Layout</th><th>Prefix</th><th>Rule</th></tr>
+<tr><td>L1</td><td>cache-optimal</td><td>stable</td><td>system + tools first, every block verbatim in arrival order, newest last; tools masked by <code>tool_choice</code>, never removed</td></tr>
+<tr><td>L2</td><td>relevance-reordered</td><td>rewritten every turn</td><td>same blocks, stable-sorted by record identifiers shared with the current turn, most relevant last</td></tr>
+<tr><td>L3</td><td>oracle-pruned</td><td>breaks at first edit</td><td>every value a later result restates is redacted in place (<code>&lt;superseded at step k&gt;</code>); whole result replaced when all its values are superseded; transcript-derived, schema-level rule</td></tr>
+<tr><td>L4</td><td>hybrid</td><td>stable (append-only)</td><td>L1 + a pointer-only session note on the newest user turn: goal, step, and per record which steps are current vs superseded (no values)</td></tr></table>
+
+<h2>Models and grid</h2>
+<table><tr><th>Family</th><th>Model</th><th>Price in / read / out per MTok</th><th>Caching</th><th>Grid</th></tr>
+<tr><td>Google</td><td>gemini-3.1-flash-lite</td><td>0.25 / 0.025 / 1.50</td><td>implicit, best-effort</td><td>144 x 4 layouts + repeat battery (30 x 5) + phrasing battery</td></tr>
+<tr><td>Google (ladder rung A, amendment 2026-10-10 19:17)</td><td>gemini-2.5-flash</td><td>0.30 / 0.03 / 2.50</td><td>implicit, best-effort; thinking on</td><td>72 tasks (seed 0) x L1/L3/L4 = 216 episodes</td></tr>
+<tr><td>Google (ladder rung B, same amendment)</td><td>gemini-3.6-flash</td><td>0.75 / 0.075 / 3.75</td><td>implicit, best-effort</td><td>36 tasks (L6/L18, seed 0) x L1/L3 = 72 episodes</td></tr>
+<tr><td>Google (dropped)</td><td>gemini-3.5-flash-lite</td><td>0.30 / 0.03 / 2.50</td><td>implicit</td><td>smoke test only: malformed function calls on about a third of turns <span class="pill warn">dropped</span></td></tr>
+<tr><td>Anthropic</td><td>claude-haiku-5.5</td><td>0.10 / 0.01 / 0.50</td><td>explicit breakpoints</td><td>144 x 4 + cache on/off control (36 tasks) <span class="pill warn">guardrail</span></td></tr>
+<tr><td>OpenAI</td><td>gpt-5-mini (fallback gpt-5-nano)</td><td>0.25 / 0.025 / 2.00</td><td>automatic</td><td>half or full grid by budget <span class="pill warn">guardrail</span></td></tr></table>
+<p><b>Amendment 2026-10-10 19:17.</b> The OpenRouter guardrail on this workspace was re-probed after the main grid and still blocks every non-Google model. Plan B from section 7 applies: a one-family Google capability ladder (rows above). The Anthropic cache on/off control cannot run; the paper says so.</p>
+<p><b>External arm (T2):</b> BFCL v3 multi-turn (base + long-context), 50 tasks, L1/L3/L4 on two models, if the harness runs cleanly; otherwise tau2-bench retail. <b>T3</b> only if spend stays under $14 after T1 and T2.</p>
+
+<h2>Analysis</h2>
+<ul>
+<li>Unit = task. Paired contrasts L1-L2, L1-L3, L4-L1, L4-L3, L2-L3 on trap accuracy, neutral accuracy, success, billed USD, cache-read fraction: sign-flip permutation (20k), task bootstrap CIs (10k), paired d<sub>z</sub>, template-cluster exact sign-flip as robustness.</li>
+<li>Interactions by label permutation: gap x length, gap x distractor, trap vs neutral, gap x family.</li>
+<li>D3 recovery fraction (L4-L1)/(L3-L1) with bootstrap CI; D5 USD per correct task from billed cost and under counterfactual cache-read multipliers 0 to 1x.</li>
+<li>Benjamini-Hochberg over the full family; bold survivors only. Hand audit of at least 30 wrong answers, shipped.</li></ul>
+
+<h2>Budget (cap $30, hard stop $24; billed <code>usage.cost</code> logged per call)</h2>
+<table><tr><th>Item</th><th>Estimate</th></tr>
+<tr><td>T1 Google (576 episodes; measured $0.011 per 18-call and $0.017 per 30-call L1 episode)</td><td>$6.5</td></tr>
+<tr><td>T1 Anthropic (576)</td><td>$3.0</td></tr>
+<tr><td>T1 OpenAI (288 to 576)</td><td>$3.5 to 4.5</td></tr>
+<tr><td>Controls and batteries</td><td>$2.0</td></tr>
+<tr><td>T2 external arm</td><td>$3.5</td></tr>
+<tr><td>Pilots and calibration (spent, discarded)</td><td>$0.4</td></tr>
+<tr><td><b>Total</b></td><td><b>~$19 to 20</b></td></tr></table>
+
+<h2>Calibration history (all discarded; none enters the analysis)</h2>
+<ul>
+<li>Pilot 1 (gemini-2.5-flash-lite, 29 tools, 7 episodes): mechanics verified; completed episodes 12/12 on trap steps; Gemini sometimes namespaced tool names (<code>default_api.*</code>).</li>
+<li>Prefix enlarged (+10 unused tools, procedures, glossary) to clear the 4,096-token minimum on Google's tokenizer; length 30 added; update-to-question distance widened; decided before any accuracy number on the new corpus.</li>
+<li>Calibration 1 (gemini-2.5-flash-lite): ~30% of tool-calling turns returned MALFORMED_FUNCTION_CALL; model dropped for gemini-3.1-flash-lite (5/5 clean on four newer models).</li>
+<li>Calibration 2 (gemini-3.1-flash-lite, L1, own-update traps): 10/10 trap steps at 18 and 30 calls; ceiling. External-update trap kind added (the world changes behind the agent; the new value shows up inside a listing row).</li>
+<li>Calibration 3 (L1 and L3 on external templates): freeze decision recorded in MILESTONES.md.</li></ul>
+</body>
+</html>

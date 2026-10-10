@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheap but confused? The accuracy cost of cache-optimized context layouts in LLM agents</title>
+<meta name="description" content="Hold the information in an agent's context fixed, change only the layout, and measure accuracy, cached tokens and the bill. The append-only layout that prompt caching rewards loses a third of its answers on external updates; pruning fixes it and is cheaper per correct answer at every cache-read price.">
+<style>
+  :root { --slate:#155e8c; --hot:#b3006b; --shelf:#c0641a; --good:#1c7a55; --ink:#16130d; --ink2:#3a352b; --muted:#6d665a; --faint:#a49c8c; --rule:#e7e2d5; --rule2:#cfdfeb; --cardbg:#fdfcfa; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: Georgia, 'Times New Roman', serif; background:#ffffff; color:var(--ink); font-size:18px; line-height:1.72; }
+  .wrap { max-width:760px; margin:0 auto; padding:56px 24px 90px; }
+  .eyebrow { font-family: Helvetica, Arial, sans-serif; font-size:12px; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:16px; }
+  h1 { font-size:40px; line-height:1.14; margin-bottom:8px; letter-spacing:-0.3px; }
+  .subtitle { font-size:21px; color:var(--ink2); line-height:1.5; margin:14px 0 18px; font-style:italic; }
+  .byline { font-family: Helvetica, Arial, sans-serif; font-size:14px; color:var(--muted); margin-bottom:22px; }
+  .pills { margin-bottom:8px; }
+  .pills a { font-family: Helvetica, Arial, sans-serif; display:inline-block; font-size:14px; text-decoration:none; border:1px solid var(--rule2); border-radius:999px; padding:5px 14px; font-weight:600; color:var(--slate); margin:0 8px 10px 0; }
+  .pills a.solid { background:var(--ink); border-color:var(--ink); color:#fff; }
+  h2 { font-size:26px; line-height:1.25; margin:60px 0 8px; padding-top:26px; border-top:1px solid var(--rule); letter-spacing:-0.2px; }
+  p { margin:14px 0; color:var(--ink2); }
+  p b, li b { color:var(--ink); }
+  ul, ol { margin:12px 0 12px 26px; color:var(--ink2); }
+  li { margin:6px 0; }
+  .num { font-family:'SF Mono', Menlo, Consolas, monospace; font-size:0.92em; font-variant-numeric:tabular-nums; }
+  .fig { margin:28px 0 32px; border:1px solid var(--rule); border-radius:12px; padding:18px 18px 14px; background:#fff; overflow-x:auto; }
+  .fig img { width:100%; display:block; }
+  .figcap { font-family: Helvetica, Arial, sans-serif; font-size:13px; line-height:1.55; color:var(--muted); margin-top:12px; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:26px 0 8px; }
+  .stat { border:1px solid var(--rule); border-radius:12px; padding:14px 16px; background:var(--cardbg); }
+  .stat .v { font-family:'SF Mono', Menlo, monospace; font-size:24px; font-weight:700; color:var(--slate); display:block; }
+  .stat .k { font-family: Helvetica, Arial, sans-serif; font-size:12px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+  .toc { font-family: Helvetica, Arial, sans-serif; font-size:14px; margin:26px 0 12px; padding:20px 22px; border:1px solid var(--rule); border-radius:12px; background:var(--cardbg); }
+  .toctitle { font-weight:700; letter-spacing:1.5px; text-transform:uppercase; font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .toc a { color:var(--slate); text-decoration:none; display:block; padding:3px 0; }
+  table { border-collapse:collapse; width:100%; margin:20px 0; font-family: Helvetica, Arial, sans-serif; font-size:14px; }
+  th { text-align:left; border-bottom:2px solid var(--ink); padding:8px; font-size:12.5px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); }
+  td { border-bottom:1px solid var(--rule); padding:8px; }
+  td.n { font-family:'SF Mono', Menlo, monospace; font-variant-numeric:tabular-nums; }
+  .filmwrap { margin:34px 0 40px; border:1px solid var(--rule); border-radius:14px; overflow:hidden; background:#000; }
+  .filmwrap video { display:block; width:100%; height:auto; }
+  .note { background:var(--cardbg); border:1px solid var(--rule); border-radius:10px; padding:14px 18px; font-family: Helvetica, Arial, sans-serif; font-size:14px; color:var(--ink2); margin:16px 0; }
+  .cite { background:var(--cardbg); border:1px solid var(--rule); border-radius:10px; padding:16px 18px; font-family:'SF Mono', Menlo, monospace; font-size:12.5px; color:var(--ink2); white-space:pre-wrap; margin:16px 0; }
+  footer { font-family: Helvetica, Arial, sans-serif; margin-top:70px; padding-top:24px; border-top:1px solid var(--rule); color:var(--muted); font-size:13.5px; }
+  footer a { color:var(--slate); }
+  @media (max-width:640px){ h1{font-size:30px;} body{font-size:17px;} .stats{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="eyebrow">LLM agents · Prompt caching · Context layout · October 2026</div>
+<h1>Cheap but confused?</h1>
+<div class="subtitle">Prompt caching rewards one layout: keep the prefix fixed, append everything, delete nothing. We held an agent's information fixed and changed only the layout. The append-only layout answers 65.5% of questions about values that changed behind the agent; redacting the stale value raises that to 96.0%, and it is cheaper per correct answer at every cache-read price.</div>
+<div class="byline">Mohammed Abraar · Vizuara Research · abraar@vizz.vizuara.ai · 12 min read · <a href="#film">or watch the 4-minute film</a></div>
+<div class="pills">
+  <a class="solid" href="#film">Film</a>
+  <a href="paper_iclr_preprint.pdf">Paper (PDF)</a>
+  <a href="paper_iclr_submission.pdf">Anonymous build</a>
+  <a href="https://github.com/Abraar237/cheap-but-confused">Code + data</a>
+</div>
+
+<div class="stats">
+  <div class="stat"><span class="v">144</span><span class="k">scripted episodes</span></div>
+  <div class="stat"><span class="v">4</span><span class="k">layouts, same information</span></div>
+  <div class="stat"><span class="v">1044</span><span class="k">billed episodes</span></div>
+  <div class="stat"><span class="v">$18.42</span><span class="k">total metered spend</span></div>
+</div>
+
+<div class="toc"><div class="toctitle">Contents</div>
+  <a href="#film">0. The four-minute film</a>
+  <a href="#rule">1. Every agent now obeys one rule: never touch the start of the prompt</a>
+  <a href="#testbed">2. A testbed where every stale value is known by construction</a>
+  <a href="#layouts">3. Four layouts that carry the same information</a>
+  <a href="#result1">4. Own updates never fail; external updates lose a third of the answers</a>
+  <a href="#audit">5. Reading the wrong answers: it is the stale value, read back</a>
+  <a href="#cost">6. The bill: cheapest per episode is not cheapest per correct episode</a>
+  <a href="#cache">7. Where the cache reads actually come from</a>
+  <a href="#ladder">8. Three Gemini generations</a>
+  <a href="#prereg">9. Five pre-registered predictions, scored</a>
+  <a href="#known">10. What was known, what is new</a>
+  <a href="#limits">11. What this does not show</a>
+  <a href="#repro">12. Reproduce it</a>
+</div>
+
+<h2 id="film">0. The four-minute film</h2>
+<div class="filmwrap"><video controls preload="metadata" poster="assets/film-poster.png" src="assets/film.mp4"></video></div>
+<p class="note">Narration note: the film is phrase-anchored to a timing database produced by <code>video/film_tts.py</code>. The ElevenLabs key provided for this project was rejected (HTTP 401) on every call, so this build carries a placeholder macOS voice at the same loudness target; re-running the script with a valid key regenerates the Matilda narration and re-times every scene.
+</p>
+
+<h2 id="rule">1. Every agent now obeys one rule: never touch the start of the prompt</h2>
+<p>Providers bill input tokens they have already processed at about a tenth of the list price. The discount applies only when a request begins with exactly the bytes of an earlier request. The guidance that followed is specific: put the system prompt and the tool declarations first and never change them, append every new observation at the end, mask tools instead of removing them, never reorder or delete earlier blocks. We call this the <b>cache-optimal layout</b>.</p>
+<p>The layout has a side effect that nobody has priced. Nothing is ever removed, so when a value changes, the old value stays in the context next to the new one. A model that answers from its context must then prefer the later of two values for the same field. The question of this study is whether that costs accuracy with the information content held fixed, and what the cost is worth against the cache it protects.</p>
+<div class="fig"><img src="assets/fig1_teaser.png" alt="Study design and headline numbers"><div class="figcap">Figure 1. One scripted episode is replayed under four layouts that carry the same information. Each question is scored against the live state of the environment and every call is billed and cache-metered by the provider.</div></div>
+
+<h2 id="testbed">2. A testbed where every stale value is known by construction</h2>
+<p>To blame an error on a stale value, you must know, for every question the agent answers, whether a superseded value for the queried field is in its context. Public agent benchmarks do not record this. So we built <b>StaleTrap</b>: three back-office domains (warehouse inventory, a shared calendar, a support-ticket queue) exposed as 29 JSON-schema tools, plus 10 messaging and HR tools that are present in every call and never needed. A local executor holds the state and returns realistic JSON, and every result declares which (record, field) values it states.</p>
+<p>An episode is a scripted session of 6, 12, 18 or 30 tool calls with 2 to 8 question steps served with tool calling disabled. In a <b>trap step</b> a superseded value is sitting in the context when the question arrives. In a <b>neutral step</b> nothing competes. Traps come in two kinds. In an <b>own update</b>, the agent changed the value itself and the tool reply stated the new value. In an <b>external update</b>, someone else changed the record and the agent only ever saw the new value as one row inside a listing it was asked to fetch. The grid is 144 episodes, 720 questions (360 trap, 360 neutral), 2,376 tool calls, frozen with a SHA-256 manifest before the first scored call.</p>
+
+<h2 id="layouts">3. Four layouts that carry the same information</h2>
+<p>Each turn, the runner rebuilds the message list from the transcript so far under one rule. <b>L1</b> is the cache-optimal layout: arrival order, newest observation last, tools masked rather than removed. <b>L2</b> keeps the same blocks but reorders the earlier ones by how many record identifiers they share with the current turn, most relevant last, which rewrites the prefix every turn. <b>L3</b> keeps arrival order and redacts, in place, every value that a later result restated; it is an oracle pruner and an upper bound for any real one. <b>L4</b> is L1 plus a pointer-only note kept on every user turn: the goal, the step, and for every record with more than one observation which step is current. The note never contains a value.</p>
+<div class="fig"><img src="assets/gifs/same-information-four-layouts.gif" alt="The same information under four layouts"><div class="figcap">The same transcript under L1, L2, L3 and L4.</div></div>
+
+<h2 id="result1">4. Own updates never fail; external updates lose a third of the answers</h2>
+<p>On Gemini 3.1 Flash-Lite, which ran the full grid, every layout scores 100.0% on own-update traps and 100.0% on neutral steps. The whole effect lives in external updates. There the append-only layout answers <span class="num">65.5%</span> correctly, the reordered layout <span class="num">70.5%</span>, the pruned layout <span class="num">96.0%</span> and the note <span class="num">73.5%</span> (200 external-trap questions per layout).</p>
+<p>Over all 360 trap questions the paired contrasts are: L1 minus L3 <span class="num">-0.177</span> [-0.230, -0.128], p < 0.0001; L1 minus L2 <span class="num">-0.036</span> [-0.079, 0.006], p = 0.116; L4 minus L1 <span class="num">+0.073</span> [0.031, 0.120], p = 0.001. Neutral steps differ by exactly zero between every pair of layouts. The gap does not grow with episode length (slope +0.0006 per call, p = 0.847): it is already 22.2% at six calls.</p>
+<div class="fig"><img src="assets/fig2_stale.png" alt="Accuracy by layout and question kind"><div class="figcap">Figure 2. Step accuracy by layout on own-update traps, external-update traps and neutral steps, per model.</div></div>
+<div class="fig"><img src="assets/fig4_dose.png" alt="Trap gap by length and distractor"><div class="figcap">Figure 4. The L1 minus L3 trap gap by episode length and distractor level. Flat: the cost of a stale value is paid as soon as it exists.</div></div>
+
+<h2 id="audit">5. Reading the wrong answers: it is the stale value, read back</h2>
+<p>We hand-coded 40 wrong trap answers from the main grid, each with the full observation history of the queried field. 34 are a superseded value read back: typically the agent's own earlier write, with the later listing row that overtook it ignored. 3 are threshold questions where the fresh quantity equals the threshold, so a stale read and a strict-inequality misreading give the same wrong answer. 2 are questions where the agent had skipped the scripted listing call, so the fresh value never entered its context (both under L3). 1 is a derived number that matches no observation. Restricting every accuracy to questions whose scripted thread steps were all executed moves no layout by more than a point.</p>
+
+<h2 id="cost">6. The bill: cheapest per episode is not cheapest per correct episode</h2>
+<p>Per episode, billed by the provider, the append-only layout is the cheapest at <span class="num">1.05c</span>; the pruned layout costs <span class="num">1.16c</span> (p < 0.0001), the reordered layout <span class="num">1.35c</span> and the note <span class="num">1.60c</span>. Per correct episode the order flips: pruned <span class="num">1.22c</span>, append-only <span class="num">1.52c</span>, reordered <span class="num">1.85c</span>, note <span class="num">2.07c</span>.</p>
+<p>We then repriced every cached token at multipliers of the input price from 0 (reads free) to 1 (no discount). The cheapest layout per correct episode at each multiplier is:</p>
+<table><tr><td class='n'>0.0x: L3</td><td class='n'>0.01x: L3</td><td class='n'>0.025x: L3</td><td class='n'>0.05x: L3</td><td class='n'>0.1x: L3</td><td class='n'>0.25x: L3</td><td class='n'>0.5x: L3</td><td class='n'>0.75x: L3</td><td class='n'>1.0x: L3</td></tr></table>
+<p>At every price the pruned layout wins. The pre-registered prediction was that a threshold exists below which the cache-optimal layout becomes cheapest per correct answer. On this provider it does not, for a reason the next section shows.</p>
+<div class="fig"><img src="assets/gifs/cost-per-correct-task.gif" alt="Cost per correct task by layout"><div class="figcap">Cents per episode and cents per correct episode, by layout.</div></div>
+<div class="fig"><img src="assets/fig3_frontier.png" alt="Accuracy versus billed cost"><div class="figcap">Figure 3. Episode success against billed cents per episode, per model; outlined points are Pareto-optimal.</div></div>
+<div class="fig"><img src="assets/fig6_threshold.png" alt="Cost per correct task versus cache-read price"><div class="figcap">Figure 6. Cents per correct episode as the cache-read price moves from free to full price. The lines do not cross.</div></div>
+
+<h2 id="cache">7. Where the cache reads actually come from</h2>
+<p>Google's cache is implicit and best-effort. Across the main grid the cached share of prompt tokens is <span class="num">0.71</span> under L1 and <span class="num">0.68</span> under L3, a difference of 0.032 [0.018, 0.045]. Most of that share is the 5,100-token static prefix. Counting only the history (everything after the prefix), the cached share is <span class="num">0.24</span> under L1 and <span class="num">0.15</span> under L3. The layout that caching rewards is barely rewarded for its history on this provider, so breaking the prefix costs little. Two more facts shape the bill. No-tool question turns are served from cache far less often than tool turns (hit rate 0.51 against 0.93 under L1), because disabling tool choice changes the request. And the L4 note, 150 tokens per turn that must stay in the history to keep the prefix stable, raises prompt tokens per episode by 69 percent over L1.</p>
+<div class="fig"><img src="assets/gifs/where-the-cache-reads-come-from.gif" alt="Cached share by turn"><div class="figcap">Cached share of prompt tokens by turn under each layout.</div></div>
+<div class="fig"><img src="assets/fig5_cache.png" alt="Cached fraction by turn"><div class="figcap">Figure 5. Cached-token fraction by turn index per layout.</div></div>
+<p>The plan assigned a cache on/off control to Anthropic, whose documentation promises output-neutral caching; that provider was unreachable on this workspace's key. The substitute uses the best-effort cache itself: the same question, under the same layout, served from cache in some runs of the repeat battery and not in others. Paired within question, the difference in trap accuracy is +0.000 over 11 questions that saw both outcomes (p = 1.000).</p>
+
+<h2 id="ladder">8. Three Gemini generations</h2>
+<p>Gemini 2.5 Flash (older, thinking on, 72 tasks) and Gemini 3.6 Flash (newest, 36 tasks) bracket the main model. External-trap accuracy under the append-only layout rises with generation, <span class="num">40%</span> to <span class="num">66%</span> to <span class="num">80%</span>, and under pruning it is <span class="num">84%</span>, <span class="num">96%</span> and <span class="num">100%</span>. The gap shrinks (27, 18, 11 points; label permutation p = 0.035 over all tasks, p = 0.092 on the 36 tasks common to all three) and does not close. The pointer note does more for the older model: on 2.5 Flash it recovers 79% of the gap and lifts external-trap accuracy from 40% to 75%. On every model pruning is the cheapest layout per correct episode, at the billed price and at every counterfactual cache-read price; on 3.6 Flash the implicit cache never serves the history at all, so its two layouts cost the same per episode.</p>
+<table><tr><th>Model</th><th>tasks</th><th>external traps, L1</th><th>L3</th><th>L4</th><th>own traps, L1</th><th>cents per correct, L1</th><th>L3</th></tr><tr><td>Gemini 2.5 Flash</td><td class='n'>72</td><td class='n'>40.0%</td><td class='n'>84.0%</td><td class='n'>75.0%</td><td class='n'>98.8%</td><td class='n'>2.71c</td><td class='n'>1.78c</td></tr><tr><td>Gemini 3.1 Flash-Lite</td><td class='n'>144</td><td class='n'>65.5%</td><td class='n'>96.0%</td><td class='n'>73.5%</td><td class='n'>100.0%</td><td class='n'>1.52c</td><td class='n'>1.22c</td></tr><tr><td>Gemini 3.6 Flash</td><td class='n'>36</td><td class='n'>80.0%</td><td class='n'>100.0%</td><td class='n'>--</td><td class='n'>100.0%</td><td class='n'>4.21c</td><td class='n'>3.67c</td></tr></table>
+
+<h2 id="prereg">9. Five pre-registered predictions, scored</h2>
+<table><tr><th>Direction (logged 2026-10-10, before any call)</th><th>Verdict</th><th>Evidence</th></tr>
+<tr><td>D1. L1 below L3 on stale-trap steps; gap grows with length; no gap on neutral steps</td><td>confirmed in two parts of three</td><td class="n">L1 minus L3 = -0.177, p &lt; 0.0001; neutral gap exactly 0; length slope +0.0006 per call, p = 0.85 (not supported)</td></tr>
+<tr><td>D2. L2 does not beat L1; its cached share falls below 0.20 and its cost rises 3x; L2 dominated on the frontier</td><td>half confirmed</td><td class="n">L1 minus L2 = -0.036, p = 0.11; L2 dominated; cached share 0.62 (not below 0.20); cost +28% (not 3x)</td></tr>
+<tr><td>D3. L4 recovers at least half of the gap, keeps 80% of L1's cached share, sits on or inside the frontier</td><td>not supported</td><td class="n">recovery 0.42 [0.21, 0.60] over all traps, 0.26 on external traps; cached share ratio 1.00; L4 dominated (prompt tokens +69%)</td></tr>
+<tr><td>D4. The L1 vs L3 gap shrinks with model capability</td><td>confirmed in direction, weak interaction evidence</td><td class="n">L1 minus L3 gap by generation: -0.27 (2.5 Flash), -0.18 (3.1 Flash-Lite), -0.11 (3.6 Flash); label permutation p = 0.035 over all tasks, 0.092 on the common 36; the cheapest model by price sits in the middle, so the 'cheapest model' clause is not supported</td></tr>
+<tr><td>D5. L3 cheapest per correct task when cache reads are expensive; L1 or L4 cheapest below a read-price threshold</td><td>reversed</td><td class="n">L3 cheapest per correct episode at every read multiplier from 0 to 1; no threshold</td></tr></table>
+
+<h2 id="known">10. What was known, what is new</h2>
+<p>Known: models use the start and end of a long context better than the middle; the latest of several revisions of a fact is retrieved less reliably as revisions accumulate; agents answer from observations the world has overtaken; pruning or masking old observations changes accuracy in a model-dependent way; prompt caching cuts the cost of long sessions by 40 to 80 percent and the discount is lost when earlier bytes change.</p>
+<p>New: a content-fixed manipulation of layout (order only, content only, recitation only) in a multi-turn tool-using agent, scored against provider-reported cached tokens and billed dollars, with every question annotated as a stale-trap step (own or external) or a neutral step, and a per-model answer to whether a cache-read price exists at which the cheapest layout per call stops being the cheapest per correct answer. The nearest neighbours vary content (compression) rather than layout, report cost without accuracy, or price tokens at list rates without a cache term. The paper's Section 2 lists them.</p>
+
+<h2 id="limits">11. What this does not show</h2>
+<ul>
+<li><b>One provider family.</b> The plan froze three families; the workspace key allowed only Google. Every number is a Google number, and the cost conclusion depends on Google's best-effort cache rarely serving the history. A provider with explicit breakpoints and a 90 percent intra-turn hit rate would give the append-only layout a larger cost advantage, and a price threshold could then exist.</li>
+<li><b>L3 is an oracle.</b> It redacts exactly what a later result restates. No deployed pruner has that oracle; L3 is the size of the prize, L4 is what a pointer-only note collects without one.</li>
+<li><b>A synthetic testbed.</b> Scripted episodes, small domains, exact-match questions. The external arm on BFCL v3 multi-turn found no layout effect on 50 tasks; its failures are capability failures, not stale reads, so the mechanism has not been shown on a public benchmark.</li>
+<li><b>Noise.</b> A trap outcome flips between identical temperature-0 runs in 11 percent of cells; the paired tests over 144 tasks absorb this, single cells do not.</li>
+<li><b>The audit is not blind.</b> The agent that ran the study coded the 40 wrong answers with the layout visible; the codes are mechanical and ship with the release.</li>
+</ul>
+
+<h2 id="repro">12. Reproduce it</h2>
+<p>Everything is in the repository: the frozen testbed with its manifest, the executor, the four layout serialisers, the runner, every raw episode log with per-call provider usage and billed cost, the single analysis script, the audit, the figure and film builders, and the spend log. Metered spend for the whole study, including pilots, calibration and discarded runs, was <span class="num">$18.42</span>.</p>
+<div class="cite">git clone https://github.com/Abraar237/cheap-but-confused
+cd cheap-but-confused
+python3 experiments/analyze.py            # results/analysis.json from results/raw/*.jsonl, byte-identical
+python3 figures/build_figures.py          # figures 2 to 6
+python3 paper/iclr/gen_tables.py          # every table in the paper
+# to re-run episodes (needs OPENROUTER_API_KEY in .env; the tracker stops at the hard cap):
+python3 experiments/runner.py --model google/gemini-3.1-flash-lite --layouts L1,L2,L3,L4</div>
+
+<footer>Mohammed Abraar · Vizuara Research · <a href="mailto:abraar@vizz.vizuara.ai">abraar@vizz.vizuara.ai</a><br>
+<a href="paper_iclr_preprint.pdf">Paper</a> · <a href="#film">Film</a> · <a href="https://github.com/Abraar237/cheap-but-confused">GitHub</a></footer>
+</div>
+</body>
+</html>

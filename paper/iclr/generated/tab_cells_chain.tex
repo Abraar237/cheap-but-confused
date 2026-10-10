@@ -1,0 +1,17 @@
+\begin{tabular}{llrrrrrrrr}
+\toprule
+\textbf{Model} & \textbf{Layout} & \textbf{own} & \textbf{external} & \textbf{chain 1} & \textbf{chain 2} & \textbf{chain 3} & \textbf{inventory} & \textbf{calendar} & \textbf{tickets} \\
+\midrule
+Gemini 2.5 Flash & L1 append-only & 0.988 & 0.400 & 0.733 & 0.597 & 0.556 & 0.691 & 0.677 & 0.611 \\
+ & L3 pruned & 1.000 & 0.840 & 0.956 & 0.889 & 0.778 & 0.910 & 0.969 & 0.920 \\
+ & L4 hybrid & 1.000 & 0.750 & 0.889 & 0.861 & 0.722 & 0.778 & 0.944 & 0.903 \\
+\midrule
+Gemini 3.1 Flash-Lite & L1 append-only & 1.000 & 0.655 & 0.850 & 0.771 & 0.750 & 0.804 & 0.788 & 0.825 \\
+ & L2 reordered & 1.000 & 0.705 & 0.867 & 0.806 & 0.806 & 0.861 & 0.844 & 0.819 \\
+ & L3 pruned & 1.000 & 0.960 & 1.000 & 0.951 & 0.972 & 0.995 & 0.976 & 0.977 \\
+ & L4 hybrid & 1.000 & 0.735 & 0.922 & 0.792 & 0.750 & 0.887 & 0.899 & 0.851 \\
+\midrule
+Gemini 3.6 Flash & L1 append-only & 1.000 & 0.800 & 0.889 & 0.889 & -- & 0.972 & 0.722 & 0.972 \\
+ & L3 pruned & 1.000 & 1.000 & 1.000 & 1.000 & -- & 1.000 & 1.000 & 1.000 \\
+\bottomrule
+\end{tabular}

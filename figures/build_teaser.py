@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""Teaser figure: HTML -> headless Chrome PNG. Numbers from results/analysis.json (first model in LABEL order)."""
+import json, pathlib, subprocess, sys
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parent
+A = json.load(open(ROOT / "results" / "analysis.json"))
+ORDER = ["google/gemini-3.1-flash-lite", "google/gemini-2.5-flash", "google/gemini-3.6-flash", "anthropic/claude-haiku-5.5", "openai/gpt-5-mini", "openai/gpt-5-nano"]
+LABEL = {"google/gemini-3.1-flash-lite": "Gemini 3.1 Flash-Lite", "google/gemini-2.5-flash": "Gemini 2.5 Flash", "google/gemini-3.6-flash": "Gemini 3.6 Flash", "anthropic/claude-haiku-5.5": "Claude Haiku 5.5", "openai/gpt-5-mini": "GPT-5 mini", "openai/gpt-5-nano": "GPT-5 nano"}
+models = [m for m in ORDER if m in A["models"]] + [m for m in A["models"] if m not in ORDER]
+rows = ""
+for m in models:
+    lay = A["models"][m]["layouts"]; fr = A["models"][m]["frontier"]
+    cells = ""
+    for L in ("L1", "L2", "L3", "L4"):
+        if L not in lay: cells += "<td>-</td><td>-</td><td>-</td>"; continue
+        t = lay[L]["trap_acc"]["mean"]; cf = lay[L]["cache_frac"]["mean"]; upc = fr[L]["usd_per_correct_task"]
+        cells += f"<td class='num'>{t*100:.0f}%</td><td class='num'>{cf*100:.0f}%</td><td class='num'>{(upc or 0)*100:.1f}&cent;</td>"
+    rows += f"<tr><th>{LABEL.get(m, m)}</th>{cells}</tr>"
+html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{{margin:0;background:#fff;font-family:Helvetica,Arial,sans-serif;color:#16130d}}
+.wrap{{width:1800px;padding:36px 44px;box-sizing:border-box}}
+.eyebrow{{font-size:22px;letter-spacing:.14em;color:#6d665a;text-transform:uppercase}}
+h1{{font-size:44px;margin:6px 0 22px;font-weight:700}}
+.row{{display:flex;gap:28px;align-items:stretch}}
+.card{{flex:1;border:2px solid #e7e2d5;border-radius:14px;padding:20px 22px;position:relative}}
+.card h2{{margin:0 0 8px;font-size:26px}}
+.tag{{position:absolute;top:-16px;left:18px;background:#fff;padding:0 8px;font-size:18px;letter-spacing:.1em;color:#6d665a}}
+.blocks{{display:flex;flex-direction:column;gap:6px;margin-top:10px}}
+.b{{min-height:30px;border-radius:6px;display:flex;align-items:center;padding:3px 10px;font-size:17px;line-height:1.15;color:#fff}}
+.sys{{background:#155e8c}} .obs{{background:#a49c8c}} .stale{{background:#c0641a}} .cur{{background:#1c7a55}} .q{{background:#16130d}} .note{{background:#b3006b}} .red{{background:#fff;border:2px dashed #c0641a;color:#c0641a}}
+.cap{{font-size:18px;color:#3a352b;margin-top:10px;line-height:1.35}}
+table{{border-collapse:collapse;margin-top:28px;width:100%;font-size:22px}}
+th,td{{padding:8px 12px;border-bottom:1px solid #e7e2d5;text-align:left}} td.num{{font-family:Menlo,monospace;text-align:right}}
+thead th{{font-size:18px;color:#6d665a;font-weight:600;border-bottom:2px solid #16130d}}
+.foot{{font-size:18px;color:#6d665a;margin-top:12px}}
+</style></head><body><div class="wrap">
+<div class="eyebrow">Same information, four layouts</div>
+<h1>Does the layout that prompt caching rewards cost accuracy, and does the discount pay for it?</h1>
+<div class="row">
+<div class="card"><span class="tag">L1 CACHE-OPTIMAL</span><h2>append only</h2><div class="blocks"><div class="b sys">system + 39 tools (cached prefix)</div><div class="b stale">read: TCK-1891 assignee = Priya</div><div class="b obs">distractor</div><div class="b cur">listing row: TCK-1891 assignee = Yusuf</div><div class="b obs">distractor</div><div class="b q">Q: who is assigned to TCK-1891?</div></div><div class="cap">Every block stays where it arrived. The stale value stays in. Prefix stable, cache reads high.</div></div>
+<div class="card"><span class="tag">L2 REORDERED</span><h2>most relevant last</h2><div class="blocks"><div class="b sys">system + 39 tools</div><div class="b obs">distractor</div><div class="b obs">distractor</div><div class="b stale">read: TCK-1891 assignee = Priya</div><div class="b cur">listing row: TCK-1891 assignee = Yusuf</div><div class="b q">Q: who is assigned to TCK-1891?</div></div><div class="cap">Same blocks, sorted by relevance each turn. Prefix rewritten, cache reads fall.</div></div>
+<div class="card"><span class="tag">L3 PRUNED</span><h2>stale values redacted</h2><div class="blocks"><div class="b sys">system + 39 tools</div><div class="b red">read: TCK-1891 assignee = &lt;superseded at step 9&gt;</div><div class="b obs">distractor</div><div class="b cur">listing row: TCK-1891 assignee = Yusuf</div><div class="b obs">distractor</div><div class="b q">Q: who is assigned to TCK-1891?</div></div><div class="cap">Content changes in place. The first edit breaks the cached prefix.</div></div>
+<div class="card"><span class="tag">L4 HYBRID</span><h2>L1 + pointer note</h2><div class="blocks"><div class="b sys">system + 39 tools (cached prefix)</div><div class="b stale">read: TCK-1891 assignee = Priya</div><div class="b obs">distractor</div><div class="b cur">listing row: TCK-1891 assignee = Yusuf</div><div class="b note">note: TCK-1891 current at step 9; step 2 superseded</div><div class="b q">Q: who is assigned to TCK-1891?</div></div><div class="cap">Nothing earlier changes. A 150-token note is kept on every turn; the prefix stays intact.</div></div>
+</div>
+<table><thead><tr><th>model</th><th colspan="3">L1 cache-optimal</th><th colspan="3">L2 reordered</th><th colspan="3">L3 pruned</th><th colspan="3">L4 hybrid</th></tr>
+<tr><th></th>{"<th>trap acc</th><th>cached</th><th>per correct</th>"*4}</tr></thead><tbody>{rows}</tbody></table>
+<div class="foot">StaleTrap: 144 frozen episodes, 720 question steps (360 stale-trap, 360 neutral), 6 to 30 tool calls. Trap accuracy = share of stale-trap steps answered with the current value. Cached = provider-reported cached share of prompt tokens. Per correct = billed USD per episode divided by episode success rate, in cents.</div>
+</div></body></html>"""
+(HERE / "fig1_teaser.html").write_text(html)
+out = ROOT / "paper" / "iclr" / "assets" / "fig1_teaser.png"
+chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+subprocess.run([chrome, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2", f"--window-size=1800,{880 + 44 * len(models)}",
+                f"--screenshot={out}", str((HERE / "fig1_teaser.html").resolve())], check=True, capture_output=True)
+subprocess.run(["cp", str(out), str(ROOT / "docs" / "assets" / "fig1_teaser.png")])
+print("teaser written", out)

@@ -1,0 +1,9 @@
+{
+ "frozen": "2026-10-10T17:07:59",
+ "manifest_sha256": "8717956a533c53c56ac8c52d00fb5de5000a8490659f3de7d14ee1e02df5898b",
+ "n_tasks": 144,
+ "files": {
+  "tasks.json": "919f0d6960ff32b11673cb46a024ca53268c11e7890108b8f5ef2d315c0a9a54",
+  "tools.json": "6c259f5373aec0072ee5c737678bcee97217218ec3a8bb27334300bf0a3b2607"
+ }
+}

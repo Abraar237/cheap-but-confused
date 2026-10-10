@@ -1,0 +1,17 @@
+\begin{tabular}{llrrrrrr}
+\toprule
+\textbf{Model} & \textbf{Layout} & \textbf{6 calls} & \textbf{12} & \textbf{18} & \textbf{30} & \textbf{low distr.} & \textbf{high distr.} \\
+\midrule
+Gemini 2.5 Flash & L1 append-only & 0.611 & 0.694 & 0.722 & 0.611 & 0.630 & 0.690 \\
+ & L3 pruned & 1.000 & 0.944 & 0.926 & 0.861 & 0.944 & 0.921 \\
+ & L4 hybrid & 0.889 & 0.917 & 0.889 & 0.806 & 0.907 & 0.843 \\
+\midrule
+Gemini 3.1 Flash-Lite & L1 append-only & 0.778 & 0.778 & 0.917 & 0.750 & 0.817 & 0.794 \\
+ & L2 reordered & 0.861 & 0.819 & 0.880 & 0.806 & 0.853 & 0.830 \\
+ & L3 pruned & 1.000 & 0.986 & 0.972 & 0.972 & 0.977 & 0.988 \\
+ & L4 hybrid & 0.944 & 0.903 & 0.898 & 0.771 & 0.882 & 0.876 \\
+\midrule
+Gemini 3.6 Flash & L1 append-only & 0.889 & -- & 0.889 & -- & 0.852 & 0.926 \\
+ & L3 pruned & 1.000 & -- & 1.000 & -- & 1.000 & 1.000 \\
+\bottomrule
+\end{tabular}

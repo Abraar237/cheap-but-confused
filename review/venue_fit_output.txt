@@ -1,0 +1,46 @@
+aligned rows 134690 missing titles 0
+
+=== Topic clusters among 50 nearest ===
+topic_label
+LLM Optimization and Programming         26
+Autonomous LLM Agent Systems              7
+LLM Representation and Generation         6
+Continual and Incremental Learning        2
+LLM Safety and Adversarial Robustness     2
+
+=== Venue distribution of 50 nearest ===
+conference
+ICML       16
+ICLR       12
+NeurIPS    10
+ACL         8
+AAAI        2
+IJCAI       1
+ECCV        1
+
+=== 25 most similar accepted papers ===
+ 1. [NeurIPS 2025] Tail-Optimized Caching for LLM Inference  (sim 0.603)
+ 2. [ICML 2026] Tvcache: A Tool-Value Cache for Post-Training LLM Agents  (sim 0.598)
+ 3. [NeurIPS 2025] Generative Caching for Structurally Similar Prompts and Responses  (sim 0.593)
+ 4. [AAAI 2026] Judge Q: Trainable Queries for Optimized Information Retention in KV Cache Eviction  (sim 0.581)
+ 5. [NeurIPS 2025] Agentic Plan Caching: Test-Time Memory for Fast and Cost-Efficient LLM Agents  (sim 0.561)
+ 6. [ACL 2026] When KV Cache Reuse Fails in Multi-Agent Systems: Cross-Candidate Interaction is Crucial for LLM Jud  (sim 0.548)
+ 7. [ACL 2026] L azy E viction: Lagged KV Eviction with Attention Pattern Observation for Efficient Long Reasoning  (sim 0.539)
+ 8. [NeurIPS 2025] Ada-KV: Optimizing KV Cache Eviction by Adaptive Budget Allocation for Efficient LLM Inference  (sim 0.533)
+ 9. [ICLR 2025] CAKE: Cascading and Adaptive KV Cache Eviction with Layer Preferences  (sim 0.528)
+10. [ICML 2026] SpecMD: A Comprehensive Study On Speculative Expert Prefetching  (sim 0.526)
+11. [ACL 2026] REAL : RE trieval-re A soning and Logic-constructed Attention Behaviors for Long-Context KV Cache Co  (sim 0.522)
+12. [ICML 2020] An Imitation Learning Approach for Cache Replacement  (sim 0.521)
+13. [ACL 2026] How Memory Management Impacts LLM Agents: An Empirical Study of Experience-Following Behavior  (sim 0.521)
+14. [ICLR 2026] Credit-Budgeted ICPC-Style Coding: When LLM Agents Must Pay for Every Decision  (sim 0.518)
+15. [ICLR 2025] RazorAttention: Efficient KV Cache Compression Through Retrieval Heads  (sim 0.517)
+16. [NeurIPS 2025] KVFlow: Efficient Prefix Caching for Accelerating LLM-Based Multi-Agent Workflows  (sim 0.515)
+17. [ICLR 2026] LouisKV: Efficient KV Cache Retrieval for Long Input-Output Sequences  (sim 0.513)
+18. [ACL 2026] The Pitfalls of KV Cache Compression  (sim 0.512)
+19. [ICML 2026] CONCUR: High-Throughput Agentic Batch Inference of LLM via Congestion-Based Concurrency Control  (sim 0.508)
+20. [ACL 2026] Beyond Accuracy: Unveiling Inefficiency Patterns in Tool-Integrated Reasoning  (sim 0.508)
+21. [ICLR 2022] New Insights on Reducing Abrupt Representation Change in Online Continual Learning  (sim 0.507)
+22. [NeurIPS 2025] Learned Prefix Caching for Efficient LLM Inference  (sim 0.505)
+23. [ICML 2025] Auditing Prompt Caching in Language Model APIs  (sim 0.504)
+24. [ACL 2024] NACL: A General and Effective KV Cache Eviction Framework for LLM at Inference Time  (sim 0.503)
+25. [ICML 2026] dLLM-Cache: Accelerating Diffusion Large Language Models with Adaptive Caching  (sim 0.503)

@@ -1,0 +1,4 @@
+Rank,Model,Agentic Overall Acc,Web Search Summary,Web Search Base,Web Search No Snippet,Memory Summary,Memory KV,Memory Vector,Memory Recursive Summarization
+1,google/gemini-3.1-flash-lite via OpenRouter L4 (FC),0.00%,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+2,google/gemini-3.1-flash-lite via OpenRouter L1 (FC),0.00%,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+3,google/gemini-3.1-flash-lite via OpenRouter L3 (FC),0.00%,N/A,N/A,N/A,N/A,N/A,N/A,N/A

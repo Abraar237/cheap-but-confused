@@ -1,0 +1,102 @@
+{
+ "total_cost": 0.00429995,
+ "calls": [
+  {
+   "model": "anthropic/claude-haiku-5.5",
+   "error": 404,
+   "msg": "{\"error\":{\"message\":\"0 endpoints out of 5 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons):\\nModel blocked by guardrail: 5 endpoints excluded; configurable at https://openrouter.ai/"
+  },
+  {
+   "model": "anthropic/claude-haiku-5.5",
+   "error": 404,
+   "msg": "{\"error\":{\"message\":\"0 endpoints out of 5 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons):\\nModel blocked by guardrail: 5 endpoints excluded; configurable at https://openrouter.ai/"
+  },
+  {
+   "model": "openai/gpt-5-mini",
+   "error": 404,
+   "msg": "{\"error\":{\"message\":\"0 endpoints out of 2 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons):\\nModel blocked by guardrail: 2 endpoints excluded; configurable at https://openrouter.ai/"
+  },
+  {
+   "model": "openai/gpt-5-mini",
+   "error": 404,
+   "msg": "{\"error\":{\"message\":\"0 endpoints out of 2 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons):\\nModel blocked by guardrail: 2 endpoints excluded; configurable at https://openrouter.ai/"
+  },
+  {
+   "model": "openai/gpt-5.6-luna",
+   "error": 404,
+   "msg": "{\"error\":{\"message\":\"0 endpoints out of 2 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons):\\nModel blocked by guardrail: 2 endpoints excluded; configurable at https://openrouter.ai/"
+  },
+  {
+   "model": "openai/gpt-5.6-luna",
+   "error": 404,
+   "msg": "{\"error\":{\"message\":\"0 endpoints out of 2 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons):\\nModel blocked by guardrail: 2 endpoints excluded; configurable at https://openrouter.ai/"
+  },
+  {
+   "model": "google/gemini-3.1-flash-lite",
+   "provider": "Google",
+   "prompt": 6298,
+   "cached": 0,
+   "cache_write": 0,
+   "completion": 1,
+   "reasoning": 0,
+   "cost": 0.001576,
+   "cache_discount": null,
+   "finish": "stop",
+   "content": "READY",
+   "lat": 2.4
+  },
+  {
+   "model": "google/gemini-3.1-flash-lite",
+   "provider": "Google",
+   "prompt": 6299,
+   "cached": 0,
+   "cache_write": 0,
+   "completion": 1,
+   "reasoning": 0,
+   "cost": 0.00157625,
+   "cache_discount": null,
+   "finish": "stop",
+   "content": "READY",
+   "lat": 2.9
+  },
+  {
+   "model": "google/gemini-2.5-flash-lite",
+   "provider": "Google",
+   "prompt": 5618,
+   "cached": 0,
+   "cache_write": 0,
+   "completion": 20,
+   "reasoning": 19,
+   "cost": 0.0005698,
+   "cache_discount": null,
+   "finish": "stop",
+   "content": "READY",
+   "lat": 1.8
+  },
+  {
+   "model": "google/gemini-2.5-flash-lite",
+   "provider": "Google",
+   "prompt": 5619,
+   "cached": 0,
+   "cache_write": 0,
+   "completion": 40,
+   "reasoning": 39,
+   "cost": 0.0005779,
+   "cache_discount": null,
+   "finish": "stop",
+   "content": "READY",
+   "lat": 1.7
+  },
+  {
+   "model": "openai/gpt-5-nano",
+   "error": 404,
+   "msg": "{\"error\":{\"message\":\"0 endpoints out of 2 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons):\\nModel blocked by guardrail: 2 endpoints excluded; configurable at https://openrouter.ai/"
+  },
+  {
+   "model": "openai/gpt-5-nano",
+   "error": 404,
+   "msg": "{\"error\":{\"message\":\"0 endpoints out of 2 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons):\\nModel blocked by guardrail: 2 endpoints excluded; configurable at https://openrouter.ai/"
+  }
+ ],
+ "date": "2026-10-10"
+}

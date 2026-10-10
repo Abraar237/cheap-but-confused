@@ -1,0 +1,10 @@
+Sample: analyze.py --audit-export 40: wrong trap answers from the main gemini-3.1-flash-lite grid, stratified across layouts (L1 11, L2 11, L3 8 = all L3 wrong answers, L4 10), seeded. Wrong trap answers in the main grid: 189. Coder: Claude Fable 5.1 (the agent that ran the study), coded from results/\_audit\_view\_0\_40.txt which lists every observation of the queried field before the question; not blind to layout. Date: 2026-10-10.
+
+\begin{description}
+\item[\texttt{stale\_value}] the answer equals an earlier observation of the same (record, field) that a later tool result had superseded
+\item[\texttt{reveal\_not\_executed}] the agent skipped the scripted tool call that would have revealed the fresh value, so the fresh value never entered the context (an action-fidelity failure, not a stale read)
+\item[\texttt{ambiguous\_stale\_or\_boundary}] below-threshold question where the fresh quantity equals the threshold; the wrong answer fits both a stale read and a strict-inequality misreading
+\item[\texttt{arithmetic\_or\_count}] the answer matches no observed value and looks derived
+\item[\texttt{distractor\_record}] the answer equals another record's value for the same field (none found as the sole explanation)
+\item[\texttt{abstain\_or\_unparsed}] no parseable answer (none in sample)
+\end{description}

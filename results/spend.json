@@ -1,0 +1,27 @@
+{
+ "total_usd": 18.42382147,
+ "by_model": {
+  "_smoke_and_diag_2026-10-10": 0.0146,
+  "google/gemini-2.5-flash-lite|L2": 0.01294208,
+  "google/gemini-2.5-flash-lite|L3": 0.00900486,
+  "google/gemini-2.5-flash-lite|L1": 0.09116052,
+  "google/gemini-2.5-flash-lite|L4": 0.00362014,
+  "google/gemini-3.1-flash-lite|L1": 3.09631555,
+  "google/gemini-3.1-flash-lite|L3": 2.03342394,
+  "google/gemini-3.1-flash-lite|T2-bfcl": 0.03023017,
+  "google/gemini-3.1-flash-lite|L2": 1.95286739,
+  "google/gemini-3.1-flash-lite|L4": 2.80272059,
+  "google/gemini-3.1-flash-lite|T2-L1": 0.5032225,
+  "google/gemini-3.1-flash-lite|T2-L3": 0.41801837,
+  "google/gemini-3.1-flash-lite|T2-L4": 0.97903142,
+  "google/gemini-3.5-flash-lite|L3": 0.01344297,
+  "google/gemini-3.5-flash-lite|L1": 0.01253955,
+  "google/gemini-2.5-flash|L3": 1.10579847,
+  "google/gemini-2.5-flash|L1": 1.03117038,
+  "google/gemini-3.6-flash|L1": 1.26415198,
+  "google/gemini-3.6-flash|L3": 1.28473966,
+  "google/gemini-2.5-flash|L4": 1.76482007
+ },
+ "n_calls": 24817,
+ "updated": "2026-10-10T20:46:18"
+}
