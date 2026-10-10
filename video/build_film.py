@@ -276,10 +276,11 @@ def s9(d, t):
     d.text((W // 2, 150), "Across three Gemini models", font=f_h2, fill=INK, anchor="mm")
     g = seg(t, cue_start("p9"), cue_start("p9") + 0.8)
     if g > 0: d.text((160, 230), "external-update trap accuracy, L1 append-only vs L3 pruned", font=f_lab, fill=mix(BG, INK, g), anchor="lm")
+    reveal = {"google/gemini-2.5-flash": at("p9", "On Gemini 2.5"), "google/gemini-3.1-flash-lite": cue_start("p9") + 0.6, "google/gemini-3.6-flash": at("p9", "On Gemini 3.6")}
     for i, m in enumerate(LAD):
-        gi = seg(t, cue_start("p9") + 0.6 + i * 1.6, cue_start("p9") + 1.6 + i * 1.6)
+        gi = seg(t, reveal.get(m, cue_start("p9") + 0.6), reveal.get(m, cue_start("p9") + 0.6) + 1.0)
         if gi <= 0: continue
-        y = 320 + i * 200
+        y = 300 + i * 190
         d.text((160, y), LADLAB[m], font=f_num, fill=mix(BG, INK, gi), anchor="lm")
         for j, L in enumerate(("L1", "L3")):
             v = ext(m, L)
@@ -288,6 +289,21 @@ def s9(d, t):
             d.text((160, yy + 22), L, font=f_note, fill=mix(BG, LCOL[L], gi), anchor="lm")
             hbar(d, 260, yy, 1100, 46, v * gi, LCOL[L])
             if gi > 0.99: d.text((1390, yy + 23), f"{v * 100:.0f}%", font=f_num, fill=LCOL[L], anchor="lm")
+    # marker-pen annotations landing on the spoken numbers
+    if LAD and LAD[0] == "google/gemini-2.5-flash":
+        ring(d, 1440, 300 + 40 + 23, 90, seg(t, at("p9", "forty percent"), at("p9", "forty percent") + 0.7), SLATE)
+        ring(d, 1440, 300 + 40 + 62 + 23, 90, seg(t, at("p9", "eighty-four"), at("p9", "eighty-four") + 0.7), HOT)
+    if "google/gemini-3.6-flash" in LAD:
+        i = LAD.index("google/gemini-3.6-flash"); y = 300 + i * 190
+        ring(d, 1440, y + 40 + 23, 90, seg(t, at("p9", "eighty and"), at("p9", "eighty and") + 0.7), SLATE)
+        ring(d, 1440, y + 40 + 62 + 23, 90, seg(t, at("p9", "one hundred"), at("p9", "one hundred") + 0.7), HOT)
+    g2 = seg(t, at("p9", "Newer models"), at("p9", "Newer models") + 0.8)
+    if g2 > 0: d.text((160, 900), "newer models are confused less often; none is cured", font=f_body, fill=mix(BG, INK, g2), anchor="lm")
+    g3 = seg(t, at("p9", "pruning is the cheapest"), at("p9", "pruning is the cheapest") + 0.8)
+    if g3 > 0:
+        d.text((160, 960), "on every model, pruning is the cheapest per correct answer", font=f_body, fill=mix(BG, HOT, g3), anchor="lm")
+        underline(d, 160, 1180, 992, seg(t, at("p9", "cheapest layout"), at("p9", "cheapest layout") + 0.7))
+
 
 def s10(d, t):
     d.text((W // 2, 180), "What this means", font=f_h2, fill=INK, anchor="mm")
@@ -315,25 +331,28 @@ def s11(d, t):
     d.text((W // 2, 820), URL, font=f_num, fill=SLATE, anchor="mm")
 
 SCENES = [("p1", s1), ("p2", s2), ("p3", s3), ("p4", s4), ("p5", s5), ("p6", s6), ("p7", s7), ("p8", s8), ("p9", s9), ("p10", s10), ("p11", s11)]
-XFADE = 0.45
+XFADE = 0.3
 def bounds():
     out = []
     for i, (cue, fn) in enumerate(SCENES):
-        a = cue_start(cue) - (0.35 if i else 0)
-        b = cue_start(SCENES[i + 1][0]) - 0.35 if i + 1 < len(SCENES) else TOTAL + 1.0
+        a = 0.0 if i == 0 else cue_start(cue) - 0.35
+        b = cue_start(SCENES[i + 1][0]) - 0.35 if i + 1 < len(SCENES) else TOTAL + 1.5
         out.append((a, b, fn))
     return out
 BOUNDS = None
 def render_at(t):
+    """Scenes never overlap: the outgoing scene fades out over XFADE before its boundary, the incoming scene
+    fades in over XFADE after it, so two titles are never on screen together."""
     global BOUNDS
     if BOUNDS is None: BOUNDS = bounds()
     im = Image.new("RGB", (W, H)); d = ImageDraw.Draw(im); base(d, t)
-    layers = [(min(seg(t, a - XFADE, a), 1 - seg(t, b, b + XFADE)), fn) for a, b, fn in BOUNDS if a - XFADE <= t < b + XFADE]
-    for alpha, fn in layers:
-        if alpha >= 0.999: fn(d, t)
-        elif alpha > 0:
-            im2 = Image.new("RGB", (W, H)); d2 = ImageDraw.Draw(im2); base(d2, t); fn(d2, t)
-            im = Image.blend(im, im2, alpha); d = ImageDraw.Draw(im)
+    for a, b, fn in BOUNDS:
+        if a <= t < b:
+            alpha = min(seg(t, a, a + XFADE) if a > 0 else 1.0, 1 - seg(t, b - XFADE, b))
+            if alpha >= 0.999: fn(d, t)
+            elif alpha > 0:
+                im2 = Image.new("RGB", (W, H)); d2 = ImageDraw.Draw(im2); base(d2, t); fn(d2, t)
+                im = Image.blend(im, im2, alpha); d = ImageDraw.Draw(im)
     return im
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "check":

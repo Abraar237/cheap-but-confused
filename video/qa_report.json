@@ -1,0 +1,15 @@
+{
+ "probe": "width=1920\nheight=1080\nr_frame_rate=60/1\nr_frame_rate=0/0\nduration=222.892000\n",
+ "loudness": [
+  "Input Integrated:    -14.0 LUFS",
+  "Input True Peak:      -2.2 dBTP"
+ ],
+ "static": [
+  [
+   178.5,
+   196.5
+  ]
+ ],
+ "blank": [],
+ "n_anchors": 52
+}

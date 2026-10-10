@@ -41,7 +41,7 @@ for m in MODELS:
     for L in LAYOUTS:
         if L not in M["layouts"]: continue
         d = M["layouts"][L]
-        rows.append(f"{lab(m) if first else ''} & {LNAME[L]} & {d['n']} & {f3(d['trap_acc']['mean'])} & {f3(d['neutral_acc']['mean'])} & {f3(d['success']['mean'])} & {cents(d['cost']['mean'])} & {cents(d['usd_per_correct_task'])} & {f3(d['cache_frac']['mean'])} \\\\")
+        rows.append(f"{lab(m) if first else ''} & {LNAME[L]} & {d['n']} & {ci(d['trap_acc'])} & {f3(d['neutral_acc']['mean'])} & {f3(d['success']['mean'])} & {cents(d['cost']['mean'])} & {cents(d['usd_per_correct_task'])} & {f3(d['cache_frac']['mean'])} \\\\")
         first = False
     rows.append("\\midrule")
 rows[-1] = "\\bottomrule"; rows.append("\\end{tabular}")
