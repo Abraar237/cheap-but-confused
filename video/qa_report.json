@@ -4,12 +4,7 @@
   "Input Integrated:    -14.0 LUFS",
   "Input True Peak:      -2.2 dBTP"
  ],
- "static": [
-  [
-   178.5,
-   196.5
-  ]
- ],
+ "static": [],
  "blank": [],
- "n_anchors": 52
+ "n_anchors": 61
 }

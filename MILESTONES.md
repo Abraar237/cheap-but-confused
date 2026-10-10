@@ -112,7 +112,7 @@ If a direction fails or reverses, it is reported plainly in the abstract. This i
 ## CP5 · Publish
 - [x] Repo: https://github.com/Abraar237/cheap-but-confused (public, .gitignore excludes .env, Agent Skills/, reference/, templates/, discarded runs; README with reproduce commands and metered spend)
 - [x] Pages: https://abraar237.github.io/cheap-but-confused/ (docs/index.html rendered by docs/gen_site.py from analysis.json; both PDFs; 3 GIFs; film)
-- [ ] Film: ____ (duration, LUFS, QA)
+- [x] Film: video/film.mp4 and docs/assets/film.mp4, 3 min 43 s (222.9 s), 1920x1080 at 60 fps, libx264 crf 20, narration normalised to -14.0 LUFS integrated / -2.2 dBTP; QA on the actual render (video/qa_film.py): contact sheet every 4 s (56 tiles), sync audit at 61 anchor phrases, transition audit at every boundary, motion audit (no static stretch over 8 s, no near-blank over 4 s). NARRATION CAVEAT: the ElevenLabs key in .env returns 401 on every call, so the track is a macOS placeholder voice; video/film_tts.py regenerates the Matilda narration and re-times every scene once a valid key is present.
 - [x] GIFs: docs/assets/gifs/same-information-four-layouts.gif, cost-per-correct-task.gif, where-the-cache-reads-come-from.gif (clean flat-chart style, 110 frames each, numbers from analysis.json)
 
 ## CP6 · Self-review
