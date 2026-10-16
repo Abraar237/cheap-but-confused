@@ -80,8 +80,10 @@ html = f"""<!DOCTYPE html>
 <div class="byline">Mohammed Abraar · Vizuara Research · abraar@vizz.vizuara.ai · 12 min read · <a href="#film">or watch the 4-minute film</a></div>
 <div class="pills">
   <a class="solid" href="#film">Film</a>
-  <a href="paper_iclr_preprint.pdf">Paper (PDF)</a>
-  <a href="paper_iclr_submission.pdf">Anonymous build</a>
+  <a href="paper_aaai_preprint.pdf">Paper (PDF, AAAI-27)</a>
+  <a href="paper_aaai_submission.pdf">Anonymous build</a>
+  <a href="supplementary_aaai.pdf">Supplementary</a>
+  <a href="paper_iclr_preprint.pdf">Long version (ICLR format)</a>
   <a href="https://github.com/Abraar237/cheap-but-confused">Code + data</a>
 </div>
 
@@ -180,7 +182,7 @@ python3 paper/iclr/gen_tables.py          # every table in the paper
 python3 experiments/runner.py --model google/gemini-3.1-flash-lite --layouts L1,L2,L3,L4</div>
 
 <footer>Mohammed Abraar · Vizuara Research · <a href="mailto:abraar@vizz.vizuara.ai">abraar@vizz.vizuara.ai</a><br>
-<a href="paper_iclr_preprint.pdf">Paper</a> · <a href="#film">Film</a> · <a href="https://github.com/Abraar237/cheap-but-confused">GitHub</a></footer>
+<a href="paper_aaai_preprint.pdf">Paper</a> · <a href="#film">Film</a> · <a href="https://github.com/Abraar237/cheap-but-confused">GitHub</a></footer>
 </div>
 </body>
 </html>

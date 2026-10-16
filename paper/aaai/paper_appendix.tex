@@ -1,0 +1,138 @@
+
+
+\section{Pre-registered directions, verbatim}
+\label{app:prereg}
+The project log (\texttt{MILESTONES.md}, committed in the public repository) records the following five directional predictions, each dated 2026-10-10, before any model call:
+\begin{enumerate}
+\item \textbf{D1 (stale-retention cost).} L1 accuracy is below L3 on stale-trap steps, the gap grows with trajectory length, and there is no comparable gap on neutral steps.
+\item \textbf{D2 (order-only effect is small, cost is large).} L2 does not significantly beat L1, while its cache-read fraction falls below 20 percent and its USD per task rises by at least 3x on 0.1x-read pricing; L2 is dominated on the frontier.
+\item \textbf{D3 (the hybrid dominates).} L4 recovers at least 50 percent of the L1-to-L3 accuracy gap while keeping at least 80 percent of L1's cache-read fraction, and sits on or inside the frontier for every model.
+\item \textbf{D4 (model dependence).} The L1-vs-L3 gap shrinks with model capability; the confusion cost is largest for the cheapest models, which is where caching saves the least absolute money.
+\item \textbf{D5 (price threshold).} Per correct task, L3 is cheapest when cache reads are expensive and L1/L4 become cheapest below a cache-read price threshold; the threshold is reported per model and compared with the published break-evens.
+\end{enumerate}
+This is a project-log pre-registration, not a registry filing. Three design changes were made during calibration and before the testbed was frozen, all logged with their reason: the prefix was enlarged to clear the 4,096-token minimum of Gemini 3.x on Google's tokenizer; a 30-call length and a wider update-to-question distance were added after a first pilot scored 12 of 12 trap steps; and the external-update trap kind was added after a second calibration scored 10 of 10 on own-update traps at 18 and 30 calls. Every calibration episode was discarded.
+
+\section{Novelty delineation table}
+\label{app:delineation}
+\begin{table}[H]
+\small
+\centering
+\begin{tabular}{p{4.0cm}p{9.2cm}}
+\toprule
+\textbf{Closest neighbour} & \textbf{What it established / what it does not cover} \\
+\midrule
+Token Reduction Is Not Cost Reduction \citep{a2607_12161} & Billed cost split into cache creation and reads, with task success, on one coding agent. Varies tool-output compression (content changes); no order-only or recitation arm; one family. \\
+Don't Break the Cache \citep{a2601_06007} & Caching strategies on three providers, 500+ sessions: 41 to 80 percent cost savings. Accuracy is not an outcome; no layout manipulation. \\
+What Does a Harness Buy? \citep{a2610_04433} & Five models by three harnesses: cost per task at one price list; cached pricing scales the bill but does not reorder harnesses. Whole harnesses differ; no content-fixed arm. \\
+TokenPilot \citep{a2606_17016}; Cache-Aware Prompt Compression \citep{a2607_15516} & Name the text-sparsity versus cache-continuity trade-off; compaction methods with hit rates. Order and pruning confounded; accuracy reported as "competitive" or on 50 tasks; no stale-step annotation. \\
+CacheWeaver \citep{a2606_19667}; Prefix Sharing Is a Sorting Problem \citep{a2609_13692} & Cache-aware ordering of evidence or shared prefixes with unchanged quality. Single-turn retrieval or serving; no agent history, no pricing. \\
+Do RAG Systems Really Suffer From Positional Bias? \citep{a2505_15561} & Reordering no better than shuffling in realistic retrieval. No history, no caching; it is our D2 null. \\
+Less Context, Better Agents \citep{a2606_10209}; Complexity Trap \citep{a2508_21433}; Masking Stale Observations \citep{a2606_00408}; condenser study \citep{a2605_18854} & Pruning or masking versus full history, with accuracy. Costs at list prices with no cache term; no order-only arm. \\
+When Agent Context Goes Stale \citep{a2610_05281}; multi-revision retrieval \citep{a2603_12271} & Agents answer from overtaken observations; latest-value accuracy falls with revisions. Runtime fix or single call; no layout factorial, no cost. \\
+Leyline, Irminsul, Request Order Matters \citep{a2606_01065,a2605_05696,a2610_05833} & Serving-side fixes for non-prefix KV reuse. Do not evaluate the API-level discipline that practitioners follow. \\
+StateAct, R\&R, belief-state block \citep{a2410_02810,a2403_05004,a2610_01415} & Restating the goal and the current state near the question helps. Not tested as a cache-preserving layout against pruning; no cost. \\
+\bottomrule
+\end{tabular}
+\caption{Novelty delineation: the nearest work and what each does not cover. Related work is in the main paper.}
+\label{tab:delineation}
+\end{table}
+
+\section{Additional figures}
+\label{app:figs}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\textwidth]{assets/fig5_cache.pdf}
+\caption{Cached-token share of the prompt by turn index, per layout, Gemini 3.1 Flash-Lite. The static prefix is cached from turn two under every layout; the history is cached on a minority of turns.}
+\label{fig:cache}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{assets/fig6_threshold.pdf}
+\caption{Cents per correct episode under counterfactual cache-read prices from free (0$\times$) to the full input price (1$\times$). The billed point is 0.1$\times$. L3 is cheapest throughout.}
+\label{fig:threshold}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{assets/fig4_dose.pdf}
+\caption{Trap accuracy by episode length and by distractor level, per layout and model. Under L1 the 18-call cell (0.92) stands out against 0.78, 0.78 and 0.75 at 6, 12 and 30 calls; on external traps alone L1 scores 0.60, 0.60, 0.85 and 0.55. We have no mechanism for the 18-call cell; the length interaction is null and the repeat battery shows that single cells carry noise.}
+\label{fig:dose}
+\end{figure}
+
+
+\section{Verbatim prompts and layouts}
+\label{app:prompts}
+\input{appendix_generated.tex}
+
+\section{Statistical test family}
+\label{app:tests}
+\input{generated/bh_summary.tex}
+Every test below is a two-sided sign-flip permutation over tasks (20,000 flips) unless its name says \texttt{int} (label permutation, 10,000) or \texttt{battery}. Table~\ref{tab:interactions} gives the interaction estimates.
+\begin{small}
+\input{generated/tab_tests.tex}
+\end{small}
+
+\begin{table}[H]
+\centering\small
+\input{generated/tab_interactions.tex}
+\caption{Interaction tests by label permutation. The gap slope is the change in the trap-accuracy contrast per additional tool call in the episode. The trap-minus-neutral column is the difference of differences; bold survives BH.}
+\label{tab:interactions}
+\end{table}
+
+\section{Per-cell tables}
+\label{app:cells}
+\begin{table}[H]
+\centering\small
+\input{generated/tab_cells_length.tex}
+\caption{Trap accuracy by episode length (tool calls) and by distractor level, per model and layout. Each length cell holds 36 episodes for the full grid.}
+\label{tab:cells_length}
+\end{table}
+\begin{table}[H]
+\centering\small
+\input{generated/tab_cells_chain.tex}
+\caption{Trap accuracy by trap kind (own update versus external update revealed in a listing), by chain length (number of updates before the question) and by domain.}
+\label{tab:cells_chain}
+\end{table}
+\begin{table}[H]
+\centering\small
+\input{generated/tab_fidelity.tex}
+\caption{Action-fidelity sensitivity. ``Reveal exec.'' is the share of scripted reveal steps the agent actually executed with the right arguments. The last two columns restrict trap accuracy to questions whose thread steps were all executed; ``skipped'' counts questions where a thread step was not executed, so the fresh value never entered the context.}
+\label{tab:fidelity}
+\end{table}
+\begin{table}[H]
+\centering\small
+\input{generated/tab_d3d5.tex}
+\caption{D3 and D5 summary per model. Recovery is (L4 $-$ L1)/(L3 $-$ L1) on trap accuracy with a task-bootstrap interval.}
+\label{tab:d3d5}
+\end{table}
+\begin{table}[H]
+\centering\small
+\input{generated/tab_d5.tex}
+\caption{Cheapest layout per correct task as the cache-read price moves from free (0$\times$) to the full input price (1$\times$); the billed point for Google sits at 0.1$\times$.}
+\label{tab:d5}
+\end{table}
+
+\section{Batteries}
+\label{app:batteries}
+\input{generated/batteries.tex}
+
+\section{Hand audit}
+\label{app:audit}
+\input{generated/audit_defs.tex}
+\begin{table}[H]
+\centering\small
+\input{generated/tab_audit.tex}
+\caption{Hand-coded wrong trap answers by layout. The per-item codes and notes ship in \texttt{results/audit\_sample.json}.}
+\label{tab:audit}
+\end{table}
+
+\section{Cost and compute}
+\label{app:cost}
+Every call was billed through OpenRouter and logged by a locked cost tracker with a hard stop at USD 24. The total below includes pilots, calibration episodes, smoke tests, discarded runs and the external arm; the main grids are the \texttt{gemini-*} rows. No GPU was used; the executor, layouts and analysis run on a laptop in under a minute.
+\begin{table}[H]
+\centering\small
+\input{generated/tab_cost.tex}
+\caption{Metered spend by model and arm (USD, OpenRouter \texttt{usage.cost}).}
+\label{tab:cost}
+\end{table}
