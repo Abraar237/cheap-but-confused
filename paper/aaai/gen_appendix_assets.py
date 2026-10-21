@@ -6,6 +6,13 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "experiments"))
 import layouts, prompts  # noqa
 
+
+def aaai_verbatim(t):
+    """Line-breaking fvextra Verbatim so long lines fit the AAAI column."""
+    t = t.replace("\\begin{small}\\begin{verbatim}", "\\begin{small}\\begin{Verbatim}[breaklines,breakanywhere,fontsize=\\footnotesize]")
+    return t.replace("\\end{verbatim}\\end{small}", "\\end{Verbatim}\n\\end{small}")
+
+
 doc = json.load(open(ROOT / "corpus" / "tools.json"))
 out = []
 def verb(s, maxlen=None):
@@ -44,5 +51,5 @@ if raw:
             txt = layouts.serialise_for_log(msgs[1:])
             txt = "\n".join(line[:150] + (" ..." if len(line) > 150 else "") for line in txt.splitlines())
             out.append(f"\\paragraph{{{L}.}}\n" + verb(txt))
-pathlib.Path(ROOT / "paper" / "iclr" / "appendix_generated.tex").write_text("\n".join(out))
+pathlib.Path(ROOT / "paper" / "aaai" / "appendix_generated.tex").write_text(aaai_verbatim("\n".join(out)))
 print("appendix_generated.tex written", len("\n".join(out)))

@@ -34,16 +34,20 @@ Our contributions are:
 
 \paragraph{Prompt caching.} Exact-prefix reuse is the production default \citep{a2312_07104,a2311_04934}. Caching cuts the cost of long agent sessions by 40 to 80 percent, and the discount is lost when earlier bytes change \citep{a2601_06007,a2607_15516}. Production hit rates are near 90 percent within a turn and 55 percent across turns \citep{a2608_00101}. The closest work measures provider-billed cost, split into cache creation and reads, against task success, and shows that compressing tool outputs can raise the bill by changing trajectories \citep{a2607_12161}; it varies compression, which changes content, not layout.
 
-\paragraph{Context management and cost-aware evaluation.} Pruning history to the last few tool pairs raises completion and cuts tokens \citep{a2606_10209}, and observation masking matches LLM summaries at a fraction of the cost \citep{a2508_21433,a2605_18854}. Cost-controlled evaluation asks for an accuracy-against-dollars frontier \citep{a2407_01502,a2504_13359,a2510_11977}. None of these isolates layout from content, and none includes the cache discount in the cost. Supplementary Table~S1 compares our design with each close neighbour.
+\paragraph{Context management and cost-aware evaluation.} Pruning history to the last few tool pairs raises completion and cuts tokens \citep{a2606_10209}, and observation masking matches LLM summaries at a fraction of the cost \citep{a2508_21433,a2605_18854}. Cost-controlled evaluation asks for an accuracy-against-dollars frontier \citep{a2407_01502,a2504_13359,a2510_11977}. None of these isolates layout from content, and none includes the cache discount in the cost. Table~\ref{tab:delineation} in the appendix compares our design with each close neighbour.
 
 \section{Experimental Setup}
 \label{sec:setup}
 
-\paragraph{Testbed.} StaleTrap exposes three back-office domains (warehouse inventory, a meeting calendar, a support-ticket queue) as 29 JSON-schema tools, plus 10 unused messaging and HR tools that stay in every call. A local executor holds the state and returns realistic JSON. The fixed prefix (system prompt and tool declarations) is 5,102 tokens, above every provider's minimum for caching. An episode is a scripted sequence of user instructions. Most ask for one tool call; some are questions answered from the context with tools disabled, scored by exact match against the executor's live state. A \textbf{trap thread} reads a field, updates it one to three times, and then asks for its current value, so an outdated value is in context. A \textbf{neutral thread} reads a field once and asks for it later. In an \emph{own} update the agent's own write returns the new value. In an \emph{external} update someone else changes the record, and the agent sees the new value only as one row of an unrelated listing. The grid crosses 3 domains, 3 task templates, 4 episode lengths (6 to 30 tool calls), 2 distractor levels and 2 seeds: 144 episodes, 720 questions (360 trap, 360 neutral). The testbed was frozen with a recorded hash before any scored run.
+\paragraph{Why a purpose-built testbed.} To attribute an error to a stale value, we must know, for every question the agent answers, whether a superseded value for the queried field is in its context. Public agent benchmarks do not annotate this, so we built StaleTrap, a deterministic tool environment in which the annotation is known by construction. The testbed was frozen with a recorded hash before any scored run.
 
-\paragraph{Layouts.} Each turn, the runner rebuilds the message list under one of four rules. \textbf{L1} is the cache-optimal layout: every block in arrival order. \textbf{L2} keeps the same blocks but sorts earlier ones by relevance to the current turn, so the prefix changes every turn. \textbf{L3} keeps arrival order but replaces every value that a later result restated with ``\textless superseded at step $k$\textgreater''. L3 uses the executor's schema, so it is an upper bound for any real pruner, and it breaks the cached prefix at the first edit. \textbf{L4} is L1 plus a short note added to every user turn that says which earlier observations are current. The note never contains a value. L1, L2 and L4 carry identical information.
+\paragraph{Environment.} Three back-office domains (warehouse inventory, a shared meeting calendar, a support-ticket queue) are exposed as 29 JSON-schema tools: 10 reads and 19 writes. A fourth domain of 10 messaging and HR tools is present in every call and never needed, so the catalogue is masked by the agent's choice rather than trimmed per step, as production stacks do. A local executor holds the state and returns realistic JSON. Every result declares which (record, field) values it states: a read states the fields it returns, a write states the field it changed and its new value, and a listing states every row it contains. The fixed prefix (system prompt and tool declarations) is 5,102 tokens on Google's tokenizer, above every provider's minimum for implicit caching.
 
-\paragraph{Models.} Table~\ref{tab:models} lists the three Gemini models, all called through OpenRouter at temperature 0 with minimal reasoning effort. We planned three model families, but a guardrail on the API account blocked every non-Google model, so the study is a three-generation Gemini ladder. Gemini 3.5 Flash-Lite was dropped because about a third of its tool calls were malformed. Every call logs the provider's prompt, cached and completion tokens and the billed amount; no cost in this paper is estimated from a price sheet except where we say counterfactual.
+\paragraph{Episodes.} An episode is a scripted sequence of user instructions. Most ask for one tool call (``Record that we received 22 units of SKU-2249''). Some are questions answered from the context with tools disabled, returned as a one-key JSON object and scored by exact match against the executor's live state. A \textbf{trap thread} reads a field, updates it one to three times, and then asks for its current value, so an outdated value is in context. A \textbf{neutral thread} reads a field once and asks for it later. In an \emph{own} update the agent's own write returns the new value. In an \emph{external} update someone else changes the record, and the agent sees the new value only as one row of an unrelated listing it was asked to fetch, which is the realistic source of stale observations \citep{a2610_05281}. Five of nine task templates use external updates and four use own updates. The remaining calls are distractors: compact reads and writes on unrelated records at the \emph{low} level, and verbose listings, near-miss identifiers and writes to other fields of the queried records at the \emph{high} level. Episodes have 6, 12, 18 or 30 tool calls with 2 to 8 questions, and the distance from the last update to its question grows with length. The grid crosses 3 domains, 3 templates, 4 lengths, 2 distractor levels and 2 seeds: 144 episodes, 720 questions (360 trap, 360 neutral) and 2,376 tool calls. A script checks that every stale value differs from the final answer (360 of 360), and every task has a second phrasing for a robustness check.
+
+\paragraph{Layouts.} Each turn, the runner rebuilds the message list under one of four rules. \textbf{L1} is the cache-optimal layout: every block in arrival order. \textbf{L2} keeps the same blocks but sorts earlier ones by relevance to the current turn, so the prefix changes every turn. \textbf{L3} keeps arrival order but replaces every value that a later result restated with ``\textless superseded at step $k$\textgreater''. L3 uses the executor's schema, so it is an upper bound for any real pruner, and it breaks the cached prefix at the first edit. \textbf{L4} is L1 plus a short note added to every user turn and kept there, so the history stays append-only. The note gives the session goal, the step number and, for every record observed more than once, which step is current and which steps are superseded. It never contains a value, so it cannot leak an answer. It adds about 150 tokens per turn, and because earlier notes stay in the history an L4 episode sends more prompt tokens than an L1 episode. L1, L2 and L4 carry identical information; the appendix shows one episode serialised under each layout.
+
+\paragraph{Models.} Table~\ref{tab:models} lists the three Gemini models, all called through OpenRouter at temperature 0 with minimal reasoning effort. We planned three model families, but a guardrail on the API account blocked every non-Google model, so the study is a three-generation Gemini ladder. Gemini 3.5 Flash-Lite was dropped because about a third of its tool calls were malformed. Calls use a per-episode session identifier for sticky routing, and turns run strictly in sequence so that the cache never expires between turns. Caching on Google is implicit; an explicit breakpoint on Gemini creates a billed cache on every call, which we measured at 3.5 to 5.8 times the cost of an implicit hit. Every call logs the provider's prompt, cached and completion tokens and the billed amount; no cost in this paper is estimated from a price sheet except where we say counterfactual.
 
 \begin{table}[t]
 \centering\small
@@ -66,7 +70,9 @@ Gemini 3.6 Flash & 36 & L1, L3 & 72 \\
 C_{\text{correct}} = \frac{\sum_e \mathrm{cost}(e)}{\sum_e \mathrm{success}(e)},
 \label{eq:cpc}
 \end{equation}
-which we also recompute with every cached token repriced at 0 to 1 times the input price. We hand-coded 40 wrong answers by error type. Five directional predictions were logged before the first model call.
+which we also recompute with every cached token repriced at 0 to 1 times the input price. Interactions (the trap gap by length, by distractor level, trap against neutral, and by model) are tested by label permutation. We hand-coded 40 wrong answers by error type, and two sensitivity checks guard the main contrast: accuracy restricted to questions whose scripted thread steps the agent actually executed, and accuracy on turns served from cache against turns that were not, at identical bytes.
+
+\paragraph{Pre-registration.} Five directional predictions were logged before the first model call (verbatim in the appendix). \textbf{D1}: L1 is below L3 on traps, the gap grows with length, and there is no gap on neutral questions. \textbf{D2}: reordering does not beat L1 but costs much more. \textbf{D3}: the note recovers at least half of the L1-to-L3 gap while keeping L1's cache share, and sits on the frontier. \textbf{D4}: the gap shrinks with model capability. \textbf{D5}: there is a cache-read price below which append-only becomes the cheapest layout per correct task.
 
 \section{Results}
 \label{sec:results}
@@ -117,7 +123,7 @@ L4 $-$ L1 (note) & \textbf{+0.073} [0.031, 0.120] & \textbf{+0.54} \\
 L4 $-$ L3 & \textbf{$-$0.104} [$-$0.145, $-$0.066] & \textbf{+0.44} \\
 \bottomrule
 \end{tabular}
-\caption{Paired within-task contrasts, Gemini 3.1 Flash-Lite (144 tasks). \textbf{Bold}: survives Benjamini--Hochberg correction. Full contrasts in the supplementary material.}
+\caption{Paired within-task contrasts, Gemini 3.1 Flash-Lite (144 tasks). \textbf{Bold}: survives Benjamini--Hochberg correction. Every contrast and test is in the appendix.}
 \label{tab:contrasts}
 \end{table}
 
@@ -125,7 +131,7 @@ L4 $-$ L3 & \textbf{$-$0.104} [$-$0.145, $-$0.066] & \textbf{+0.44} \\
 
 \paragraph{What the wrong answers are.} Of 40 hand-coded wrong trap answers, 34 are an outdated value read back, almost always the agent's own earlier write, with the newer listing row ignored. Three are threshold questions where a stale read and a misread inequality coincide, two are cases where the agent skipped the listing call so the new value never reached its context, and one is a derived number. The agent executed the reveal steps 99.0\% to 100\% of the time under every layout, and restricting to fully executed threads moves no layout's accuracy by more than half a point.
 
-\paragraph{The cheapest layout per episode is not the cheapest per correct episode.} L1 is the cheapest layout per episode at 1.05 cents; L3 costs 1.16 cents (paired $+0.10$ cents, $p < 10^{-4}$). Per correct episode (Eq.~\ref{eq:cpc}) the order reverses: L3 1.22 cents, L1 1.52, L2 1.85, L4 2.07. L1 and L3 are the only points on the accuracy-cost frontier (Figure~\ref{fig:frontier}). Repricing every cached token from free to the full input price never changes the ranking: L3 is cheapest per correct episode at every price. On this provider no cache-read price makes the cache-optimal layout pay for its errors.
+\paragraph{The cheapest layout per episode is not the cheapest per correct episode.} L1 is the cheapest layout per episode at 1.05 cents; L3 costs 1.16 cents (paired $+0.10$ cents, $p < 10^{-4}$). Per correct episode (Eq.~\ref{eq:cpc}) the order reverses: L3 1.22 cents, L1 1.52, L2 1.85, L4 2.07. L1 and L3 are the only points on the accuracy-cost frontier (Figure~\ref{fig:frontier}). Repricing every cached token from free to the full input price (Figure~\ref{fig:threshold}) never changes the ranking: L3 is cheapest per correct episode at every price. On this provider no cache-read price makes the cache-optimal layout pay for its errors.
 
 \begin{figure*}[t]
 \centering
@@ -134,20 +140,62 @@ L4 $-$ L3 & \textbf{$-$0.104} [$-$0.145, $-$0.066] & \textbf{+0.44} \\
 \label{fig:frontier}
 \end{figure*}
 
-\paragraph{Why: the history is rarely cached.} Over an episode, the cached share of prompt tokens is 0.71 under L1 and 0.68 under L3, but most of that is the 5,100-token fixed prefix. Counting only the history, the cached share is 0.24 under L1, 0.13 under L2, 0.15 under L3 and 0.45 under L4. Google's implicit cache serves the growing history on a minority of turns even when the bytes do not change, and L3's shorter prompts (118k against 122k tokens per episode) recover most of the difference. The L4 note, repeated on every turn, raises prompt tokens by 69\% and the bill by 51\%, which is what puts L4 off the frontier. As a substitute for a cache on/off control, we compared the same question at identical bytes served from cache in some runs and not in others: the paired difference in trap accuracy is 0.000 over 11 questions ($p = 1$).
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{assets/fig6_threshold.pdf}
+\caption{Cents per correct episode under counterfactual cache-read prices from free (0$\times$) to the full input price (1$\times$). The billed point is 0.1$\times$. L3 is cheapest throughout.}
+\label{fig:threshold}
+\end{figure*}
 
-\paragraph{Three Gemini generations.} External-trap accuracy under L1 rises with generation: 0.40 on Gemini 2.5 Flash, 0.655 on 3.1 Flash-Lite and 0.80 on 3.6 Flash. Under L3 it is 0.84, 0.96 and 1.00. The paired L1-minus-L3 trap gap shrinks from $-0.273$ to $-0.177$ to $-0.111$ (between-model permutation $p = 0.035$ over all tasks, $0.092$ on the 36 shared tasks). The note helps the older model most: on 2.5 Flash it recovers 79\% of the gap, raising external-trap accuracy from 0.40 to 0.75, but it is still off the frontier. The cost ordering holds on every model: L3 is the cheapest per correct episode (1.78 against 2.71 cents on 2.5 Flash; 3.67 against 4.21 on 3.6 Flash) at every counterfactual cache-read price.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.72\textwidth]{assets/fig5_cache.pdf}
+\caption{Cached-token share of the prompt by turn index, per layout, Gemini 3.1 Flash-Lite. The static prefix is cached from turn two under every layout; the history is cached on a minority of turns.}
+\label{fig:cache}
+\end{figure*}
 
-\paragraph{External benchmark.} On BFCL v3 multi-turn \citep{patil2025bfcl}, with Gemini 3.1 Flash-Lite and 50 tasks, no layout moves accuracy by more than three tasks (0.44 for L1 on both splits). The failures there are state mismatches and long loops rather than stale reads, so BFCL neither confirms nor contradicts the mechanism.
+\paragraph{Why: the history is rarely cached.} Figure~\ref{fig:cache} shows the cached share of prompt tokens by turn. Over an episode, the cached share of prompt tokens is 0.71 under L1 and 0.68 under L3, but most of that is the 5,100-token fixed prefix. Counting only the history, the cached share is 0.24 under L1, 0.13 under L2, 0.15 under L3 and 0.45 under L4. Google's implicit cache serves the growing history on a minority of turns even when the bytes do not change, and L3's shorter prompts (118k against 122k tokens per episode) recover most of the difference. Question turns, which run with tools disabled, are served from cache far less often than tool turns (hit rate 0.51 against 0.93 under L1), because disabling tool choice changes the request. The L4 note, repeated on every turn, raises prompt tokens by 69\% and the bill by 51\%, which is what puts L4 off the frontier.
+
+\paragraph{No evidence that a cache hit changes an answer.} A cache on/off control was planned on a provider with explicit caching but could not run. In its place, the cache itself gives a comparison at identical bytes: the same question under the same layout, served from cache in some runs of the repeat battery and not in others. Paired within question, the difference in trap accuracy is 0.000 over the 11 questions that saw both outcomes ($p = 1$). The unpaired comparison over the main grid is confounded, because cache hits concentrate in later turns of long episodes where traps are harder; after stratifying by length and chain it is $-0.004$ under L1. We read this as no evidence that a cache hit changes an answer, with the caveat that the paired sample is small.
+
+\subsection{Three Gemini Generations}
+External-trap accuracy under L1 rises with generation: 0.40 on Gemini 2.5 Flash (100 questions), 0.655 on 3.1 Flash-Lite (200) and 0.80 on 3.6 Flash (40). Under L3 it is 0.84, 0.96 and 1.00. Own-update traps and neutral questions stay at or near 1.00 on every model. The paired L1-minus-L3 trap gap is $-0.273$ [$-0.367$, $-0.186$] on 2.5 Flash, $-0.177$ on 3.1 Flash-Lite and $-0.111$ [$-0.213$, $-0.028$] on 3.6 Flash. Permuting model labels over the task-level gaps gives $p = 0.035$ over all tasks each model ran and $p = 0.092$ on the 36 tasks common to all three. The note helps the older model most: on 2.5 Flash it recovers 79\% of the gap [58, 97], raising external-trap accuracy from 0.40 to 0.75, but it costs 71\% more per episode than L1 and stays off the frontier. The cost ordering is the same on every model. Per episode, L1 is cheapest or tied (1.43 against 1.54 cents on 2.5 Flash; 3.51 against 3.57 on 3.6 Flash). Per correct episode, L3 is cheapest (1.78 against 2.71 cents; 3.67 against 4.21), at every counterfactual cache-read price. On 3.6 Flash the implicit cache almost never serves the history (history cached share 0.006 under L1), which is why its two layouts cost nearly the same.
+
+\subsection{External Benchmark}
+We ran BFCL v3 multi-turn \citep{patil2025bfcl} through its official harness with a per-call message hook, on Gemini 3.1 Flash-Lite with 25 base and 25 long-context tasks, under L1, L3 and L4. BFCL has no schema oracle, so L3 there is age-based observation masking. Accuracy is 0.44 / 0.44 under L1, 0.44 / 0.48 under L3 and 0.44 / 0.40 under L4 (base / long-context). No layout moves accuracy by more than three of fifty tasks, the cached share is 0.78 to 0.80 under all three, and cents per correct task are 2.10, 1.82 and 2.19. The failures there are state mismatches and long loops rather than stale reads, so BFCL neither confirms nor contradicts the mechanism.
+
+\subsection{Pre-registered Predictions, Scored}
+\begin{itemize}
+\item \textbf{D1, confirmed in two parts of three.} L1 is below L3 on traps ($-0.177$, $p < 10^{-4}$) and the gap on neutral questions is exactly zero. The gap does not grow with length (slope $+0.0006$ per call, $p = 0.85$).
+\item \textbf{D2, half confirmed.} L2 does not beat L1 ($p = 0.11$) and is dominated on the frontier. Its cached share falls to 0.62, not below 0.20, and its cost per episode rises by 28\%, not threefold, because this provider's cache rarely serves the history.
+\item \textbf{D3, not supported.} L4 recovers 42\% of the gap [21, 60] over all traps and 26\% on external traps, below the predicted half. It keeps L1's cached share, but the persistent note raises prompt tokens by 69\%, so it is dominated on the frontier.
+\item \textbf{D4, confirmed in direction.} The gap shrinks with generation ($-0.27$, $-0.18$, $-0.11$), with weak evidence for the interaction ($p = 0.035$; $0.092$ on common tasks).
+\item \textbf{D5, reversed.} L3 is the cheapest per correct episode at every cache-read price from 0 to 1 times the input price. No threshold exists on this provider.
+\end{itemize}
 
 \section{Discussion}
 \label{sec:discussion}
 
-\paragraph{Comparison with prior work.} Observation masking and history pruning have been reported to keep or raise accuracy while cutting tokens \citep{a2508_21433,a2606_10209}, but those comparisons price tokens at list rates. Adding the cache discount does not reverse their conclusion here: our redaction layout, the content-only intervention, is both more accurate and cheaper per correct answer than append-only. Prior caching work reports 40 to 80 percent savings \citep{a2601_06007} and production hit rates near 90 percent within a turn \citep{a2608_00101}; our measured history hit rate on Google's implicit cache is much lower, which is why the expected cost advantage of append-only did not appear. Compared with the recency findings of \citet{a2603_12271}, our gap does not grow with the number of intervening calls: one external update is enough.
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Layout & Prior practice & Ext.\ trap & Cents/correct & Cached \\
+\midrule
+L1 & cache-optimal guidance & 0.655 & 1.52 & 0.708 \\
+L2 & relevance reordering & 0.705 & 1.85 & 0.619 \\
+L3 & observation pruning & \textbf{0.960} & \textbf{1.22} & 0.676 \\
+L4 & state recitation & 0.735 & 2.07 & \textbf{0.711} \\
+\bottomrule
+\end{tabular}
+\caption{Each layout as the content-fixed version of a published practice: append-only cache guidance \citep{manus2025,anthropic2025context}, reordering by relevance \citep{a2505_15561}, pruning or masking old observations \citep{a2606_10209,a2508_21433}, and restating the current state near the question \citep{a2410_02810,a2610_01415}. Gemini 3.1 Flash-Lite, 144 tasks. \textbf{Bold}: best per column.}
+\label{tab:baselines}
+\end{table}
+
+\paragraph{Comparison with prior work.} Table~\ref{tab:baselines} places each layout next to the published practice it isolates. Observation masking and history pruning have been reported to keep or raise accuracy while cutting tokens \citep{a2508_21433,a2606_10209}, but those comparisons price tokens at list rates. Adding the cache discount does not reverse their conclusion here: our redaction layout, the content-only intervention, is both more accurate and cheaper per correct answer than append-only. Prior caching work reports 40 to 80 percent savings \citep{a2601_06007} and production hit rates near 90 percent within a turn \citep{a2608_00101}; our measured history hit rate on Google's implicit cache is much lower, which is why the expected cost advantage of append-only did not appear. Compared with the recency findings of \citet{a2603_12271}, our gap does not grow with the number of intervening calls: one external update is enough.
 
 \paragraph{What deployers should do.} Keep the fixed prefix, since it is what the cache actually serves. When a later observation replaces an earlier value for the same field, overwrite the earlier value even though this breaks the cache for the history; on the tested provider, the accuracy is worth more than the discount. A pointer-only note is a cheaper partial fix for older models, but its repeated tokens make it the most expensive layout.
-
-\paragraph{Pre-registered predictions.} D1 (a stale-value cost on traps but not on neutral questions) held, except that the gap did not grow with length. D2 (reordering does not help and costs more) held in direction but not in magnitude. D3 (the note dominates) was not supported. D4 (the gap shrinks with model generation) held in direction. D5 (a cache-price threshold where append-only becomes cheapest) was reversed: no threshold exists on this provider.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -156,7 +204,13 @@ The cache-optimal layout costs nothing when the agent's own tool replies carry t
 \paragraph{Future work.} First, repeat the study on providers with explicit cache breakpoints and high history hit rates, where the discount is larger and a price threshold may exist. Second, replace the oracle redaction with a learned pruner to measure how much of the gap a deployable system can recover. Third, test the mechanism on public agent benchmarks with natural external updates.
 
 \section*{Limitations}
-Every number here is from one provider family, because an account guardrail blocked the other providers we planned. The cost conclusion depends on Google's implicit cache rarely serving the history; a provider with explicit breakpoints would give append-only a larger cost advantage. L3 redacts exactly the values a later result restates, using the executor's schema; no deployed pruner has that oracle, so L3 is an upper bound. StaleTrap is scripted and synthetic, so absolute accuracies are not deployment numbers, and we have not shown the mechanism on a public benchmark. Identical temperature-0 runs flip a trap outcome in about one cell in nine; the paired tests over 144 tasks absorb this noise. The error audit was not blind.
+\textbf{One provider family.} An account guardrail blocked the other providers we planned, so every number here is a Google number and the model ladder is three Gemini generations, not three vendors. The cost conclusion depends on Google's implicit cache rarely serving the history; a provider with explicit breakpoints and a high intra-turn hit rate \citep{a2608_00101} would give append-only a larger cost advantage, and the D5 threshold could then exist. The substitute for the cache on/off control rests on 11 questions.
+
+\textbf{An oracle pruner.} L3 redacts exactly the values a later result restates, using the executor's schema. No deployed pruner has that oracle, so the L1-to-L3 gap is the size of the prize, not a recommendation to ship L3. L4 shows how much of the prize a pointer-only note collects without an oracle: about a quarter on external traps.
+
+\textbf{A synthetic testbed.} StaleTrap is scripted, its domains are small and its questions have one exact answer. This makes the stale annotation possible, and it is also why the absolute accuracies are not deployment numbers. BFCL found no layout effect, so we have not shown the mechanism on a public benchmark.
+
+\textbf{Noise and the audit.} Identical temperature-0 runs flip a trap outcome in about one cell in nine; the paired tests over 144 tasks absorb this noise, but single cells do not. The phrasing check covers one alternative phrasing, not free-form language. The 40 wrong answers were coded with the layout visible, so the audit was not blind.
 
 \section*{Ethical Considerations}
 The testbed is synthetic: fictional records and names, no personal data. No deployed system was probed beyond public model APIs. The work measures the cost of an engineering practice and introduces no new capability.

@@ -3,8 +3,7 @@
 Mohammed Abraar · Vizuara Research · October 2026
 
 - **Website:** https://abraar237.github.io/cheap-but-confused/
-- **Paper (AAAI-27 workshop format, Deployable AI Workshop):** [`docs/paper_aaai_preprint.pdf`](docs/paper_aaai_preprint.pdf) (named) · [`docs/paper_aaai_submission.pdf`](docs/paper_aaai_submission.pdf) (anonymous) · [`docs/supplementary_aaai.pdf`](docs/supplementary_aaai.pdf) (appendix). Sources in `paper/aaai/`.
-- **Long version (ICLR format):** [`docs/paper_iclr_preprint.pdf`](docs/paper_iclr_preprint.pdf) (named preprint) · [`docs/paper_iclr_submission.pdf`](docs/paper_iclr_submission.pdf) (anonymous build)
+- **Paper (AAAI-27 workshop format, Deployable AI Workshop):** [`docs/paper_aaai_preprint.pdf`](docs/paper_aaai_preprint.pdf) (named) · [`docs/paper_aaai_submission.pdf`](docs/paper_aaai_submission.pdf) (anonymous). Sources in `paper/aaai/`.
 - **Film:** on the website (`docs/assets/film.mp4`)
 
 Prompt caching rewards one context layout: keep the system prompt and tools first, append every
@@ -38,7 +37,7 @@ experiments/       env.py (executor), prompts.py, build_corpus.py, layouts.py (L
                    audit_view.py, run_*.sh, t2_bfcl/ (BFCL v3 multi-turn arm)
 results/raw/       every scored episode with per-call provider usage and billed cost (JSONL)
 results/           analysis.json, audit_sample.json, audit_candidates.json, spend.json
-paper/iclr/        LaTeX dual build (anonymous + named), gen_tables.py, gen_appendix_assets.py, references.bib
+paper/aaai/        AAAI-27 dual build with appendix, gen_tables.py, gen_appendix_assets.py, references.bib
 figures/           build_figures.py, build_teaser.py, build_gifs.py, style.py
 video/             script.md, film_tts.py (ElevenLabs Matilda with-timestamps, -14 LUFS), build_film.py
 docs/              GitHub Pages site (gen_site.py renders index.html from analysis.json), PDFs, GIFs, film
@@ -52,8 +51,8 @@ EXPERIMENT_PLAN.md frozen plan and amendments; MILESTONES.md: pre-registration, 
 python3 experiments/analyze.py              # rebuilds results/analysis.json byte-identically from results/raw
 python3 experiments/analyze.py --audit-export 40
 python3 figures/build_figures.py && python3 figures/build_teaser.py && python3 figures/build_gifs.py
-python3 paper/iclr/gen_tables.py && python3 paper/iclr/gen_appendix_assets.py
-cd paper/iclr && tectonic paper_iclr_submission.tex && tectonic paper_iclr_preprint.tex
+python3 paper/aaai/gen_tables.py && python3 paper/aaai/gen_appendix_assets.py
+cd paper/aaai && for f in paper_aaai_submission paper_aaai_preprint; do pdflatex $f; bibtex $f; pdflatex $f; pdflatex $f; done   # AAAI kit needs pdfLaTeX
 # AAAI-27 build needs pdfLaTeX (the aaai2027 style refuses XeTeX), e.g. TinyTeX:
 cd paper/aaai && for f in paper_aaai_submission paper_aaai_preprint; do pdflatex $f && bibtex $f && pdflatex $f && pdflatex $f; done
 python3 docs/gen_site.py

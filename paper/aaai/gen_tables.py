@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Emit every results table in the paper from results/analysis.json (and the audit file it summarises).
-Writes paper/iclr/generated/*.tex. No number in any table is typed by hand."""
+Writes paper/aaai/generated/*.tex. No number in any table is typed by hand."""
 import json, pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 A = json.load(open(ROOT / "results" / "analysis.json"))
-OUT = ROOT / "paper" / "iclr" / "generated"
+OUT = ROOT / "paper" / "aaai" / "generated"
 OUT.mkdir(exist_ok=True)
 LABEL = {"google/gemini-2.5-flash": "Gemini 2.5 Flash", "google/gemini-3.1-flash-lite": "Gemini 3.1 Flash-Lite", "google/gemini-3.6-flash": "Gemini 3.6 Flash",
          "anthropic/claude-haiku-5.5": "Claude Haiku 5.5", "openai/gpt-5-mini": "GPT-5 mini"}
@@ -69,11 +69,18 @@ for m in MODELS:
     open(OUT / f"tab_contrasts_{m.split('/')[-1]}.tex", "w").write("\n".join(rows) + "\n")
 
 # ---------------------------------------------------------------- full test family (appendix)
-rows = ["\\begin{longtable}{llrl}", "\\toprule", "\\textbf{Model} & \\textbf{Test} & $p$ & \\textbf{BH} \\\\", "\\midrule", "\\endhead"]
+# Two tests per row so the 65-test family fits one two-column AAAI table* (longtable cannot run in two-column mode).
+cells = []
 for key in sorted(TESTS, key=lambda k: (MODELS.index(k.split(":")[0]) if k.split(":")[0] in MODELS else 99, k)):
     m, rest = key.split(":", 1)
-    rows.append(f"{lab(m) if m in A['models'] else tex_escape(m)} & \\texttt{{{tex_escape(rest)}}} & {pv(TESTS[key]['p'])} & {'survives' if survives(key) else ''} \\\\")
-rows += ["\\bottomrule", "\\end{longtable}"]
+    cells.append(f"{lab(m) if m in A['models'] else tex_escape(m)} & \\texttt{{{tex_escape(rest)}}} & {pv(TESTS[key]['p'])} & {'\\checkmark' if survives(key) else ''}")
+half = (len(cells) + 1) // 2
+hdr = "\\textbf{Model} & \\textbf{Test} & $p$ & \\textbf{BH}"
+rows = ["\\begin{tabular}{llrc@{\\hspace{1.5em}}llrc}", "\\toprule", hdr + " & " + hdr + " \\\\", "\\midrule"]
+for i in range(half):
+    right = cells[half + i] if half + i < len(cells) else " & & & "
+    rows.append(cells[i] + " & " + right + " \\\\")
+rows += ["\\bottomrule", "\\end{tabular}"]
 open(OUT / "tab_tests.tex", "w").write("\n".join(rows) + "\n")
 open(OUT / "bh_summary.tex", "w").write(f"The family holds {A['bh']['n_tests']} tests; {A['bh']['n_survive']} survive Benjamini-Hochberg at $q = 0.05$ (effective threshold $p \\le {BH_T:.4f}$).\n")
 

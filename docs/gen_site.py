@@ -82,8 +82,6 @@ html = f"""<!DOCTYPE html>
   <a class="solid" href="#film">Film</a>
   <a href="paper_aaai_preprint.pdf">Paper (PDF, AAAI-27)</a>
   <a href="paper_aaai_submission.pdf">Anonymous build</a>
-  <a href="supplementary_aaai.pdf">Supplementary</a>
-  <a href="paper_iclr_preprint.pdf">Long version (ICLR format)</a>
   <a href="https://github.com/Abraar237/cheap-but-confused">Code + data</a>
 </div>
 
@@ -177,7 +175,7 @@ PREREG-TABLE
 cd cheap-but-confused
 python3 experiments/analyze.py            # results/analysis.json from results/raw/*.jsonl, byte-identical
 python3 figures/build_figures.py          # figures 2 to 6
-python3 paper/iclr/gen_tables.py          # every table in the paper
+python3 paper/aaai/gen_tables.py          # every table in the paper
 # to re-run episodes (needs OPENROUTER_API_KEY in .env; the tracker stops at the hard cap):
 python3 experiments/runner.py --model google/gemini-3.1-flash-lite --layouts L1,L2,L3,L4</div>
 
